@@ -1,28 +1,23 @@
 <template>
-  <div class="chatbot-container">
-    <div class="chatbot-button-wrapper">
-      <div class="chatbot-button" @mouseenter="openChat" @mouseleave="keepChatOpen" @click="toggleChat">
-        <div class="chatbot-tooltip" :class="{ show: showTooltip }">
-          ¿Necesitas ayuda? <br> Converse con nosotros
+  <div>
+    <div class="chatbot-button" @mouseenter="openChat" @mouseleave="keepChatOpen" @click="toggleChat">
+      <div class="bot-head">
+        <div class="bot-eyes">
+          <div class="eye"></div>
+          <div class="eye"></div>
         </div>
+        <div class="bot-mouth"></div>
+        <div class="bot-antenna"></div>
       </div>
     </div>
     <div v-if="showChat" class="chatbot" @mouseleave="keepChatOpen">
       <div class="chatbot-header">
-        <h3>Conversa con nosotros</h3>
+        <h3>SaviBot</h3>
         <button class="close-btn" @click="toggleChat">×</button>
       </div>
       <div ref="chatBody" class="chatbot-body">
         <div v-for="(message, index) in messages" :key="index" :class="['message-container', message.sender]">
-          <div v-if="message.sender === 'typing'" class="typing-indicator">
-            <span></span><span></span><span></span>
-          </div>
-          <div v-else-if="message.sender === 'twoOptions'" class="two-options-container">
-            <button v-for="(option, idx) in message.options" :key="idx" class="two-option-button" @click="sendMessage(option)">
-              <div class="two-option-content">{{ option }}</div>
-            </button>
-          </div>
-          <div v-else class="message-bubble" v-html="message.text" @click="message.sender === 'option' && !message.disabled ? sendMessage(message.text) : null"></div>
+          <div class="message-bubble" v-html="message.text" @click="message.sender === 'option' && !message.disabled ? sendMessage(message.text) : null"></div>
         </div>
       </div>
       <div class="chatbot-footer">
@@ -32,11 +27,6 @@
   </div>
 </template>
 
-
-
-
-
-
 <script>
 export default {
   data() {
@@ -44,21 +34,19 @@ export default {
       messages: [],
       userMessage: '',
       showChat: false,
-      showTooltip: true,
-      botName: 'Conversa con nosotros',
+      botName: 'SaviBot',
       isInputEnabled: false,
       inputPlaceholder: 'Buscar producto...',
-      // idCiudad: parseInt(sessionStorage.getItem("coddepto")) || 0,
-      idCiudad: 1,
+      idCiudad: parseInt(sessionStorage.getItem("coddepto")) || 0,
       listCity: ["La Paz", "El Alto", "Cochabamba", "Santa Cruz", "Tarija", "Sucre", "Oruro", "Potosí"],
       listArea: ["Impresoras 3D", "Fotocopiadoras", "Sublimación", "Cortadora láser", "Computadoras", "Bioseguridad", "Impresoras", "Papel", "Novedades", "Otros"],
-      listMenu: ["1. Ver tiendas en la ciudad", "2. Horarios de atención", "3. Buscar un Item", "4. Área de computación", "5. Área 3D", "6. Liquidaciones"],
-      listAreaSupport: ["5. Área 3D", "🙋🏻‍♂️ Máquinas láser", "4. Área de computación", "🙋🏻‍♂️ Sublimación", "🙋🏻‍♂️ Atención general"],
+      listMenu: ["🗺️ Dirección", "📅 Horarios de atención", "🔍 Buscar producto", "💻 Área de computación", "🧩 Área 3D", "💰 Liquidaciones"],
+      listAreaSupport: ["🧩 Área 3D", "🙋🏻‍♂️ Máquinas láser", "💻 Área de computación", "🙋🏻‍♂️ Sublimación", "🙋🏻‍♂️ Atención general"],
       listCitySupport: ["➡️ La Paz", "➡️ El Alto", "➡️ Cochabamba", "➡️ Santa Cruz", "➡️ Tarija", "➡️ Sucre", "➡️ Oruro", "➡️ Potosí"],
       listAreaCatalog: ["📰 Impresoras 3D", "📰 Fotocopiadoras", "📰 Sublimación", "📰 Cortadora láser", "📰 Computadoras", "📰 Bioseguridad", "📰 Impresoras", "📰 Papel", "📰 Novedades", "📰 Otros"],
       listaContactos: [
-        { id_ciudad: 1, title: 'Tienda La Paz' },
         { id_ciudad: 2, title: 'Tienda el Alto' },
+        { id_ciudad: 1, title: 'Tienda la Paz' },
         { id_ciudad: 5, title: 'Tienda Cochabamba' },
         { id_ciudad: 3, title: 'Tienda Santa Cruz' },
         { id_ciudad: 8, title: 'Tienda Sucre' },
@@ -70,11 +58,7 @@ export default {
   },
   methods: {
     toggleChat() {
-      if (this.showChat) {
-        this.clearMessages(); // Limpiar mensajes al cerrar el chat
-      }
       this.showChat = !this.showChat;
-      this.showTooltip = !this.showChat;
       if (this.showChat) {
         this.startConversation();
       }
@@ -82,45 +66,28 @@ export default {
     openChat() {
       if (!this.showChat) {
         this.showChat = true;
-        this.showTooltip = false;
         this.startConversation();
       }
     },
     keepChatOpen() {
       this.showChat = true;
     },
-    startVibrationLoop() {
-      this.showTooltip = true;
-
-      setInterval(() => {
-        const button = this.$el.querySelector('.chatbot-button');
-        button.classList.add('vibrate');
-        this.showTooltip == true ? true : false; // Mostrar el tooltip
-        setTimeout(() => {
-          button.classList.remove('vibrate');
-          // this.showTooltip = false; // Ocultar el tooltip después de la vibración
-        }, 200); // Duración de la vibración
-      }, 15000); // Intervalo de 15 segundos
-    },
     handleOutsideClick(event) {
       if (!this.$el.contains(event.target) && this.showChat) {
-        this.clearMessages();
         this.showChat = false;
-        this.showTooltip = true;
       }
-    },
-    clearMessages() {
-      this.messages = []; // Vaciar el array de mensajes
     },
     startConversation() {
       if (this.messages.length === 0) {
         console.log("Valor de idCiudad:", this.idCiudad);
         if (this.idCiudad === 0) {
-          this.welcome();
-          this.registerCity();
+          this.sendBotMessage(`🤖 ¡Hola! Soy SaviBot 👋🏻`);
+          this.sendBotMessage("Tú asistente virtual");
+          this.sendBotMessage("¿En qué ciudad te encuentras? 👇🏻");
+          this.sendBotOptions(this.listaContactos.map(contact => contact.title));
         } else {
-          this.welcome();
-          this.menu();
+          this.sendBotMessage(`🤖 ¡Hola de nuevo! 👋🏻`);
+          this.sendBotOptions(["🗺️ Dirección", "📅 Horarios de atención", "🔍 Buscar producto", "💻 Área de computación", "🧩 Área 3D", "💰 Liquidaciones"]);
         }
       }
       this.scrollToBottom();
@@ -131,129 +98,83 @@ export default {
         this.disablePreviousOptions();
         this.handleBotResponse(userMessage);
         this.userMessage = '';
-        this.isInputEnabled = false;
         this.scrollToBottom();
       }
     },
     handleBotResponse(userMessage) {
-      this.showTypingIndicator();
-      setTimeout(() => {
-        this.hideTypingIndicator();
-        switch (userMessage.toLowerCase()) {
-          case '🤖 empezar':
-            this.welcome();
-            break;
-          case 'hola':
-          case 'buen':
-          case 'buenos días':
-          case 'buenas tardes':
-          case 'buenas noches':
-            this.welcome();
-            break;
-          case '✅ menú':
-            this.menu();
-            break;
-          case '2. horarios de atención':
-            this.attentionSchedule();
-            break;
-          case '✅ sí':
-            this.menu();
-            break;
-          case '⛔ no':
-            this.goodbye();
-            break;
-          case '📦 productos y precios':
-            this.productsAndPrices();
-            break;
-          case '1. ver tiendas en la ciudad':
-            this.address();
-            break;
-          case '6. Liquidaciones':
-            this.openPromotionsAndOffers();
-            break;
-          case '📖 ver catálogos':
-            this.seeCatalogs();
-            break;
-          case '🙋🏻‍♂️ chatear con un asesor':
-            this.chatWithAnAdvisor();
-            break;
-          case '3. buscar un item':
-            this.enableProductSearch();
-            break;
-          default:
-            if (this.listArea.includes(userMessage)) {
-              this.searchForArea(userMessage);
-            } else if (this.listaContactos.map(contact => contact.title).includes(userMessage)) {
-              this.setCity(userMessage);
-            } else if (this.listAreaCatalog.includes(userMessage)) {
-              this.catalog();
-            } else if (this.listAreaSupport.includes(userMessage)) {
-              this.whatsAppLinks(userMessage);
-            } else if (this.listCitySupport.includes(userMessage)) {
-              this.customerSupportByCity(userMessage);
-            } else if (this.listCity.includes(userMessage)) {
-              this.addressForCity(userMessage);
-            } else {
-              this.errorMessage();
-            }
-            break;
-        }
-      }, this.getRandomResponseTime());
-    },
-    showTypingIndicator() {
-      this.messages.push({ text: '...', sender: 'typing' });
-      this.scrollToBottom();
-    },
-
-    hideTypingIndicator() {
-      this.messages = this.messages.filter(message => message.sender !== 'typing');
-    },
-
-    getRandomResponseTime() {
-      return Math.floor(Math.random() * 2000) + 1000; // Entre 1 y 3 segundos
-    },
-    getRandomResponseTimeChat() {
-      return Math.floor(Math.random() * 300) + 300; // Entre 0.3 y 0.6 segundos
-    },
-    getRandomResponseTimeChatBotMessage() {
-      return Math.floor(Math.random() * 300) + 700; // Entre 0.7 y 1.0 segundos
-    },
-    getRandomResponseTimeChatBotOptions() {
-      return Math.floor(Math.random() * 300) + 1100; // Entre 1.1 y 1.4 segundos
-    },
-    async sendBotMessage(message) {
-      await this.delay(this.getRandomResponseTimeChat());
-      this.messages.push({ text: message, sender: 'bot' });
-      this.scrollToBottom();
-    },
-    async sendBotMessageOptions(message) {
-      await this.delay(this.getRandomResponseTimeChatBotMessage());
-      this.messages.push({ text: message, sender: 'bot' });
-      this.scrollToBottom();
-    },
-    async sendBotOptions(options) {
-      await this.delay(this.getRandomResponseTimeChatBotOptions());
-      for (const option of options) {
-        this.messages.push({ text: option, sender: 'option', disabled: false });
-        this.scrollToBottom();
+      switch (userMessage.toLowerCase()) {
+        case '🤖 empezar':
+          this.welcome("🫡");
+          break;
+        case 'hola':
+        case 'buen':
+        case 'buenos días':
+        case 'buenas tardes':
+        case 'buenas noches':
+          this.welcome("👋🏻");
+          break;
+        case '✅ menú':
+          this.menu();
+          break;
+        case '📅 horarios de atención':
+          this.attentionSchedule();
+          break;
+        case '✅ sí':
+          this.menu();
+          break;
+        case '⛔ no':
+          this.goodbye();
+          break;
+        case '📦 productos y precios':
+          this.productsAndPrices();
+          break;
+        case '🗺️ dirección':
+          this.address();
+          break;
+        case '💰 liquidaciones':
+          this.openPromotionsAndOffers();
+          break;
+        case '📖 ver catálogos':
+          this.seeCatalogs();
+          break;
+        case '🙋🏻‍♂️ chatear con un asesor':
+          this.chatWithAnAdvisor();
+          break;
+        case '🔍 buscar producto':
+          this.enableProductSearch();
+          break;
+        default:
+          if (this.listArea.includes(userMessage)) {
+            this.searchForArea(userMessage);
+          } else if (this.listaContactos.map(contact => contact.title).includes(userMessage)) {
+            this.setCity(userMessage);
+          } else if (this.listAreaCatalog.includes(userMessage)) {
+            this.catalog();
+          } else if (this.listAreaSupport.includes(userMessage)) {
+            this.whatsAppLinks(userMessage);
+          } else if (this.listCitySupport.includes(userMessage)) {
+            this.customerSupportByCity(userMessage);
+          } else if (this.listCity.includes(userMessage)) {
+            this.addressForCity(userMessage);
+          } else {
+            this.errorMessage();
+          }
+          break;
       }
     },
-    async sendBotOption(option) {
-      await this.delay(this.getRandomResponseTimeChatBotOptions());
+    sendBotMessage(message) {
+      this.messages.push({ text: message, sender: 'bot' });
+      this.scrollToBottom();
+    },
+    sendBotOptions(options) {
+      options.forEach(option => {
+        this.messages.push({ text: option, sender: 'option', disabled: false });
+      });
+      this.scrollToBottom();
+    },
+    sendBotOption(option) {
       this.messages.push({ text: option, sender: 'option', disabled: false });
       this.scrollToBottom();
-    },
-    async sendTwoOptions(options) {
-      if (options.length !== 2) {
-        console.error("sendTwoOptions requires exactly two options.");
-        return;
-      }
-      await this.delay(this.getRandomResponseTimeChatBotOptions());
-      this.messages.push({ options: options, sender: 'twoOptions' });
-      this.scrollToBottom();
-    },
-    delay(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
     },
     disablePreviousOptions() {
       this.messages.forEach(message => {
@@ -263,75 +184,51 @@ export default {
       });
     },
     enableProductSearch() {
-      this.sendBotMessage("Por favor, escribe el nombre del Item que estás buscando 👇🏻");
-
       this.isInputEnabled = true;
       this.inputPlaceholder = 'Escriba el nombre del producto...';
       this.$nextTick(() => {
         this.$refs.userInput.focus();
         this.scrollToBottom();
-      });      
+      });
+      this.sendBotMessage('Por favor, escribe el nombre del producto que estás buscando:');
     },
-    welcome() {
-      this.sendBotMessage("🤖 ¡Hola! Soy tu asistente 👋🏻");
-      // this.sendBotMessage("Tú asistente virtual");
-    },
-    registerCity(){
-      this.sendBotMessageOptions("¿En qué ciudad te encuentras? 👇🏻");
+    welcome(emoji) {
+      this.sendBotMessage(`🤖 ¡Hola! Soy SaviBot ${emoji}`);
+      this.sendBotMessage("Tú asistente virtual");
+      this.sendBotMessage("¿En qué ciudad te encuentras? 👇🏻");
       this.sendBotOptions(this.listaContactos.map(contact => contact.title));
     },
     menu() {
-      this.sendBotMessageOptions("¿En qué podemos ayudarte? 👇🏻");
+      this.sendBotMessage("¿En qué puedo ayudarte? 🤔");
       this.sendBotOptions(this.listMenu);
-    },
-    preMenu(){
-      this.sendBotMessage("¿En qué puedo ayudarte hoy? 😃");
-      this.menu();
     },
     attentionSchedule() {
       this.sendBotMessage(
-        `Nuestros horarios de atención en tiendas son:<br>
-        <div style="display: flex; align-items: center;">
-          <span style="color: #4CAF50;">✅</span> Lunes a Viernes
-        </div>
-        <div style="padding-left: 1em;">
-          <div style="display: flex; align-items: center;">
-            <span style="color: #4CAF50;">➡</span> de 8:30am a 12:30pm
-          </div>
-          <div style="display: flex; align-items: center;">
-            <span style="color: #4CAF50;">➡</span> de 2:30pm a 7:00pm
-          </div>
-        </div>
-        <div style="display: flex; align-items: center;">
-          <span style="color: #4CAF50;">✅</span> Sábados
-        </div>
-        <div style="padding-left: 1em;">
-          <div style="display: flex; align-items: center;">
-            <span style="color: #4CAF50;">➡</span> de 9:00am a 1:00pm
-          </div>
-        </div>`
+        "Nuestros horarios de atención en tiendas son:\n" +
+        "✅ Lunes a Viernes\n" +
+        "    ➡ de 8:30am a 12:30pm\n" +
+        "    ➡ de 2:30pm a 7:00pm\n" +
+        "✅ Sábados\n" +
+        "    ➡ de 9:00am a 1:00pm"
       );
       this.menuPreEnd();
     },
     menuPreEnd() {
-      this.sendBotMessageOptions("¿Te puedo ayudar con algo más? 🤔");
-      this.sendTwoOptions(["✅ Sí", "⛔ No"]);
+      this.sendBotOptions(["✅ Sí", "⛔ No"]);
     },
     goodbye() {
       this.sendBotMessage("🤖 Ha sido un placer atenderte");
-      this.sendBotMessage("No olvides revisar nuestra página web y nuestros productos aquí 👋🏻");
-      // this.sendBotMessage("https://savin.com.bo/");
+      this.sendBotMessage("No olvides revisar nuestra página web y nuestros productos aquí 👇🏻");
+      this.sendBotMessage("https://savin.com.bo/");
     },
     errorMessage() {
       this.sendBotMessage("Lo siento, no entendí lo que dijiste 👀");
-      // this.sendBotOption("🤖 Empezar");
-      this.menu();
+      this.sendBotOption("🤖 Empezar");
     },
     productsAndPrices() {
       this.sendBotOptions(this.listArea);
     },
     address() {
-      this.sendBotMessageOptions("¿En qué ciudad te encuentras? 👇🏻");
       this.sendBotOptions(this.listCity);
     },
     openPromotionsAndOffers() {
@@ -347,108 +244,49 @@ export default {
     searchForArea(area) {
       this.sendBotMessage(`¿Qué producto estás buscando en el área ${area}?`);
     },
-
     addressForCity(city) {
       const addresses = {
         'La Paz': [
-          {
-            address: "<span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/tNsAqrArK2NfGnM47' target='_blank'>Calle Loayza # 349, local 3 (Frente a la facultad de Derecho UMSA)</a>",
-            phone: "72030101"
-          },
-          {
-            address: "<span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/vnP2W9hk2oJZMSwx5' target='_blank'>Calle Zapata # 141 (frente Monoblock UMSA)</a>",
-            phone: "72030107"
-          }
+          "<div class='address-container'><span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/tNsAqrArK2NfGnM47' target='_blank'>Calle Loayza # 349, local 3 (Frente a la facultad de Derecho UMSA)</a><br><span class='phone-icon'>📲</span> 72030101</div>",
+          "<div class='address-container'><span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/vnP2W9hk2oJZMSwx5' target='_blank'>Calle Zapata # 141 (frente Monoblock UMSA)</a><br><span class='phone-icon'>📲</span> 72030107</div>",
+          "<div class='address-container'><span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/Vvw4BjAnpP6MFnwa8' target='_blank'>Calle 2 de obrajes entre Av. Hernando Siles y Av. 14 de Septiembre (Frente Universidad Catolica)</a><br><span class='phone-icon'>📲</span> 71545171</div>"
         ],
         'El Alto': [
-          {
-            address: "<span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/vTUrQCpyNQmC24hH6' target='_blank'>Av. Juan Pablo II Edif. EI Ceibo Local A-15 (Final Autopista casi esq. Rene Dorado)</a>",
-            phone: "72029023"
-          },
-          {
-            address: "<span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/bagfMNGR4GSmpom9A' target='_blank'>Avenida Satélite # 668 (Cerca al Banco Mercantil Santa Cruz)</a>",
-            phone: "71543980"
-          }
+          "<div class='address-container'><span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/vTUrQCpyNQmC24hH6' target='_blank'>Av. Juan Pablo II Edif. EI Ceibo Local A-15 (Final Autopista casi esq. Rene Dorado)</a><br><span class='phone-icon'>📲</span> 72029023</div>",
+          "<div class='address-container'><span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/bagfMNGR4GSmpom9A' target='_blank'>Avenida Satélite # 668 (Cerca al Banco Mercantil Santa Cruz)</a><br><span class='phone-icon'>📲</span> 71543980</div>"
         ],
         'Cochabamba': [
-          {
-            address: "<span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/6MfeLnrtaiAk9p6y9' target='_blank'>Calle Sucre # 882 (Casi esquina Oquendo)</a>",
-            phone: "72030102"
-          }
+          "<div class='address-container'><span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/6MfeLnrtaiAk9p6y9' target='_blank'>Calle Sucre # 882 (Casi esquina Oquendo)</a><br><span class='phone-icon'>📲</span> 72030102</div>"
         ],
         'Santa Cruz': [
-          {
-            address: "<span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/1xw1r9zfBwv1pQJK6' target='_blank'>Avenida Centenario # 113 casi esquina Palermo (entre primer y segundo anillo)</a>",
-            phone: "72030103"
-          }
+          "<div class='address-container'><span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/1xw1r9zfBwv1pQJK6' target='_blank'>Avenida Centenario # 113 casi esquina Palermo (entre primer y segundo anillo)</a><br><span class='phone-icon'>📲</span> 72030103</div>"
         ],
         'Tarija': [
-          {
-            address: "<span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/rHxKVwKALUQev44QA' target='_blank'>Calle Alejandro del Carpio # 258 entre Suipacha y Méndez (Zona Las Panosas)</a>",
-            phone: "72030105"
-          }
+          "<div class='address-container'><span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/rHxKVwKALUQev44QA' target='_blank'>Calle Alejandro del Carpio # 258 entre Suipacha y Méndez (Zona Las Panosas)</a><br><span class='phone-icon'>📲</span> 72030105</div>"
         ],
         'Sucre': [
-          {
-            address: "<span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/bcK8XhSmjCk9daXt7' target='_blank'>Calle Regimiento Campos # 174 Esquina Ricardo Andrade (Frente a la Facultad Técnica)</a>",
-            phone: "72030104"
-          }
+          "<div class='address-container'><span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/bcK8XhSmjCk9daXt7' target='_blank'>Calle Regimiento Campos # 174 Esquina Ricardo Andrade (Frente a la Facultad Técnica)</a><br><span class='phone-icon'>📲</span> 72030104</div>"
         ],
         'Oruro': [
-          {
-            address: "<span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/5ARt9qRxZoRzadc89' target='_blank'>Calle Potosí # 5507 Esquina Montecinos (Diagonal al Col. Juan Misael Saracho)</a>",
-            phone: "72030106"
-          }
+          "<div class='address-container'><span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/5ARt9qRxZoRzadc89' target='_blank'>Calle Potosí # 5507 Esquina Montecinos (Diagonal al Col. Juan Misael Saracho)</a><br><span class='phone-icon'>📲</span> 72030106</div>"
         ],
         'Potosí': [
-          {
-            address: "<span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/mzG5tcuqNpD9NcLDA' target='_blank'>Avenida Prado San Clemente # 29 entre las calles Camargo y 13 de Mayo</a>",
-            phone: "68868684"
-          }
+          "<div class='address-container'><span class='address-icon'>🏢</span><a href='https://maps.app.goo.gl/mzG5tcuqNpD9NcLDA' target='_blank'>Avenida Prado San Clemente # 29 entre las calles Camargo y 13 de Mayo</a><br><span class='phone-icon'>📲</span> 68868684</div>"
         ]
       };
-
-      const whatsappBaseUrl = "https://api.whatsapp.com/send/?phone=591";
-
-      addresses[city].forEach(contact => {
-        this.sendBotMessage(`
-          <div class='address-container'>
-            ${contact.address}<br>
-            <span class='phone-icon'>📲</span>
-            <a href='${whatsappBaseUrl}${contact.phone}&text&type=phone_number&app_absent=0' target='_blank'>${contact.phone}</a>
-          </div>
-        `);
-      });
-
+      addresses[city].forEach(address => this.sendBotMessage(address));
       this.menuPreEnd();
     },
-
-
-
-    async whatsAppLinks(area) {
+    whatsAppLinks(area) {
       const linksWhatsApp = {
-        '4. Área de computación': [
-          "Iván", "<a href='https://api.whatsapp.com/send/?phone=59174040348&text&type=phone_number&app_absent=0' target='_blank'>74040348</a>"
+        '💻 Área de computación': [
+          "📲 <a href='https://api.whatsapp.com/send/?phone=59174040348&text&type=phone_number&app_absent=0' target='_blank'>74040348</a>"
         ],
-        '5. Área 3D': [
-          "Rodri", "<a href='https://api.whatsapp.com/send/?phone=59168068883&text&type=phone_number&app_absent=0' target='_blank'>68068883</a>"
+        '🧩 Área 3D': [
+          "📲 <a href='https://api.whatsapp.com/send/?phone=59168068883&text&type=phone_number&app_absent=0' target='_blank'>68068883</a>"
         ]
       };
-
-      const advisor = linksWhatsApp[area];
-  
-      // Enviar el nombre del asesor
-      await this.sendBotMessage(`Nuestro especialista te atenderá con gusto 😊`);
-
-      if (advisor) {
-        // Enviar el enlace de WhatsApp
-        await this.sendBotMessage(`
-          <div class='address-container'>
-            <span class='phone-icon'>📲</span> ${advisor[1]}
-          </div>
-        `);
-      }
-
+      linksWhatsApp[area].forEach(whatsAppContact => this.sendBotMessage(whatsAppContact));
       this.menuPreEnd();
     },
     catalog() {
@@ -499,13 +337,12 @@ export default {
       const selectedContact = this.listaContactos.find(contact => contact.title === city);
       this.idCiudad = selectedContact.id_ciudad;
       sessionStorage.setItem("coddepto", this.idCiudad);
-      this.menu();
+      this.sendBotOptions(["📅 Horarios de atención", "🔍 Buscar producto", "💻 Área de computación", "🧩 Área 3D", "💰 Liquidaciones"]);
       this.scrollToBottom();
     }
   },
   mounted() {
     document.addEventListener('click', this.handleOutsideClick);
-    this.startVibrationLoop();
   },
   beforeDestroy() {
     document.removeEventListener('click', this.handleOutsideClick);
@@ -514,22 +351,6 @@ export default {
 </script>
 
 <style>
-
-@keyframes vibrate {
-  0%, 100% { transform: translateX(0); }
-  20%, 60% { transform: translateX(-1px); }
-  40%, 80% { transform: translateX(1px); }
-}
-
-@keyframes expand {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
-  }
-  50% {
-    box-shadow: 0 0 15px 15px rgba(37, 211, 102, 0);
-  }
-}
-
 .chatbot-button {
   position: fixed;
   bottom: 20px;
@@ -544,21 +365,7 @@ export default {
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 1000;
-  background-image: url('https://cdn.glitch.global/fb88d943-304b-4312-be00-868b389c37cf/bot-head.png?v=1717688111538');
-  background-size: 69%;
-  background-repeat: no-repeat;
-  background-position: center;
-  animation: expand 2s infinite;
 }
-
-.chatbot-button:hover {
-  animation: expand 2s infinite, vibrate 0.2s;
-}
-.vibrate {
-  animation: vibrate 0.2s;
-}
-
-
 
 .bot-head {
   position: relative;
@@ -566,9 +373,6 @@ export default {
   height: 60%;
   background: white;
   border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .bot-eyes {
@@ -610,13 +414,12 @@ export default {
   border-radius: 50%;
 }
 
-
 .chatbot {
   position: fixed;
   bottom: 80px;
   right: 20px;
-  width: 320px;
-  height: 500px;
+  width: 300px;
+  height: 400px;
   background: #f0f0f0;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   display: flex;
@@ -652,7 +455,7 @@ export default {
 .message-container {
   display: flex;
   margin: 3px 0;
-  max-width: 100%;
+  max-width: 90%;
 }
 
 .message-container.user {
@@ -668,44 +471,33 @@ export default {
   display: inline-block;
   max-width: 80%;
   word-wrap: break-word;
-  padding: 5px 8px;
-  border-radius: 5px;
+  padding: 10px;
+  border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  opacity: 0; /* Oculto inicialmente */
-  transform: translateY(20px); /* Desplazado hacia abajo inicialmente */
-  animation: slideUp 0.5s forwards; /* Animación que lo hace visible y lo desplaza hacia arriba */
-}
-
-@keyframes slideUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  margin: 5px 0;
 }
 
 .message-bubble p {
   margin: 0;
-  /* width: 100%; */
 }
 
 .user .message-bubble {
   background: #DCF8C6;
-  border-radius: 15px 15px 0 15px;
+  border-radius: 8px 8px 0 8px;
   text-align: right;
 }
 
 .bot .message-bubble {
   background: #ECECEC;
-  border-radius: 15px 15px 15px 0;
+  border-radius: 8px 8px 8px 0;
   text-align: left;
 }
 
 .option .message-bubble {
   background: #25D366;
   color: white;
-  border-radius: 5px;
+  border-radius: 8px;
   text-align: left;
-  
   cursor: pointer;
 }
 
@@ -726,10 +518,9 @@ export default {
 
 .chatbot-footer input {
   flex: 1;
-  padding: 5px;
+  padding: 10px;
   border: 1px solid #ccc;
   border-radius: 20px;
-
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -758,131 +549,4 @@ export default {
   cursor: pointer;
   color: white;
 }
-
-
-.typing-indicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.typing-indicator span {
-  background-color: #34e47a;
-  height: 10px;
-  width: 10px;
-  border-radius: 50%;
-  display: inline-block;
-  margin: 0 2px;
-  animation: typing 1.2s infinite;
-}
-
-.typing-indicator span:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.typing-indicator span:nth-child(3) {
-  animation-delay: 0.4s;
-}
-
-@keyframes typing {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-  100% { transform: translateY(0); }
-}
-
-/* dos opciones  */
-.two-options-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 0px;
-}
-
-.two-option-button {
-  flex: 0 1 auto;
-  margin: 5px;
-  padding: 5px 15px;
-  background-color: #25D366;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.two-option-button:disabled {
-  background-color: #a4d3a2;
-  cursor: not-allowed;
-}
-
-.two-option-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  white-space: nowrap; /* Para evitar que el texto se divida en varias líneas */
-}
-
-
-/* tool tip */
-
-.chatbot-container {
-  position: relative;
-}
-
-.chatbot-button-wrapper {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-}
-
-.chatbot-button {
-  width: 60px;
-  height: 60px;
-  background-color: #25D366;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  background-image: url('https://cdn.glitch.global/fb88d943-304b-4312-be00-868b389c37cf/bot-head.png?v=1717688111538');
-  background-size: 69%;
-  background-repeat: no-repeat;
-  background-position: center;
-  animation: expand 2s infinite;
-}
-
-.chatbot-button:hover {
-  animation: expand 2s infinite, vibrate 0.2s;
-}
-
-.vibrate {
-  animation: vibrate 0.2s;
-}
-
-.chatbot-tooltip {
-  position: absolute;
-  top: 10%;
-  left: calc(100% - 230px); /* Ajustar para que el tooltip comience justo al lado derecho del botón */
-  transform: translateY(-50%);
-  background-color: #002f5d;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 5px; 
-  opacity: 0;
-  transform: translateX(20px); /* Desplazamiento inicial para el efecto de transición */
-  transition: opacity 0.5s ease, transform 0.5s ease;
-  white-space: nowrap; /* Para evitar que el texto se divida en varias líneas */
-  z-index: 999; /* Asegurarse de que el tooltip esté por encima de otros elementos */
-}
-
-.chatbot-tooltip.show {
-  opacity: 1;
-  transform: translateX(0); /* Desplazamiento final para el efecto de transición */
-}
-
-
 </style>
