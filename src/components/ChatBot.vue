@@ -29,6 +29,11 @@
               {{ option }}
             </button>
           </div>
+          <div v-else-if="message.sender === 'groupedOptionsYellow'" class="options-grouped-container-yellow">
+            <button v-for="(option, idx) in message.options" :key="idx" class="option-grouped-button-yellow" @click="sendMessage(option)">
+              {{ option }}
+            </button>
+          </div>
           <div v-else class="message-bubble" v-html="message.text" @click="message.sender === 'option' && !message.disabled ? sendMessage(message.text) : null"></div>
         </div>
       </div>
@@ -67,8 +72,8 @@ export default {
       // idCiudad: 1,
       listCity: ["La Paz", "El Alto", "Cochabamba", "Santa Cruz", "Tarija", "Sucre", "Oruro", "Potosí"],
       listArea: ["Impresoras 3D", "Fotocopiadoras", "Sublimación", "Cortadora láser", "Computadoras", "Bioseguridad", "Impresoras", "Papel", "Novedades", "Otros"],
-      listMenu: ["1. Ver tiendas en tu ciudad", "2. Horarios de atención", "3. Buscar un producto", "4. Área de computación", "5. Área 3D", "6. Liquidaciones"],
-      listAreaSupport: ["5. Área 3D", "🙋🏻‍♂️ Máquinas láser", "4. Área de computación", "🙋🏻‍♂️ Sublimación", "🙋🏻‍♂️ Atención general"],
+      listMenu: ["1. Ver tiendas en tu ciudad", "2. Horarios de atención", "3. Buscar un producto", "4. Área de computación", "5. Área 3D",  "6. Área CORTADORES LÁSER", "7. Liquidaciones"],
+      listAreaSupport: ["5. Área 3D", "🙋🏻‍♂️ Máquinas láser", "4. Área de computación", "🙋🏻‍♂️ Sublimación", "🙋🏻‍♂️ Atención general", "6. Área CORTADORES LÁSER"],
       listCitySupport: ["➡️ La Paz", "➡️ El Alto", "➡️ Cochabamba", "➡️ Santa Cruz", "➡️ Tarija", "➡️ Sucre", "➡️ Oruro", "➡️ Potosí"],
       listAreaCatalog: ["📰 Impresoras 3D", "📰 Fotocopiadoras", "📰 Sublimación", "📰 Cortadora láser", "📰 Computadoras", "📰 Bioseguridad", "📰 Impresoras", "📰 Papel", "📰 Novedades", "📰 Otros"],
       listaContactos: [
@@ -83,13 +88,37 @@ export default {
       ],
       autocompleteResults: [],
       showTemporaryMessage: false,
-      nameCity: ''
+      nameCity: '',
+      optionsArea: {
+        "computación": {
+          "CPU": "https://www.savin.com.bo/computacion/marcas.html?tkn=MTIsMjcsNzAsVEVDTk9MT0dJQS1DT01QVVRBQ0lPTixDUFU=",
+          "ACCESORIOS": "https://www.savin.com.bo/computacion/marcasns.html?tkn=MTQsMCw3MSxURUNOT0xPR0lBLUNPTVBVVEFDSU9OLEFDQ0VTT1JJT1M=",
+          "ZONA GAMER": "https://www.savin.com.bo/computacion/marcasns.html?tkn=NTMsMCw3MSxURUNOT0xPR0lBLUNPTVBVVEFDSU9OLFpPTkEgR0FNRVI=",
+          "REDES": "https://www.savin.com.bo/computacion/marcasns.html?tkn=NjIsMCw3MSxURUNOT0xPR0lBLUNPTVBVVEFDSU9OLFJFREVT",
+          "CELULARES": "https://www.savin.com.bo/computacion/marcasns.html?tkn=NjMsMCw3MSxURUNOT0xPR0lBLUNPTVBVVEFDSU9OLENFTFVMQVJFUw==",
+          "LAPTOP": "https://www.savin.com.bo/computacion/marcas.html?tkn=NzQsMjcsNzAsVEVDTk9MT0dJQS1DT01QVVRBQ0lPTixMQVBUT1A=",
+          "ALL IN ONE": "https://www.savin.com.bo/computacion/marcas.html?tkn=NzcsMjcsNzAsVEVDTk9MT0dJQS1DT01QVVRBQ0lPTixBTEwgSU4gT05F"
+        },
+        "cortadores láser": {
+          "MÁQUINAS LASER": "https://www.savin.com.bo/cortadoras-laser/marcasns.html?tkn=NzgsMCw3MSxDT1JUQURPUkFTIExBU0VSLE1BUVVJTkFTIExBU0VS",
+          "REPUESTOS": "https://www.savin.com.bo/cortadoras-laser/marcasns.html?tkn=NzksMCw3MSxDT1JUQURPUkFTIExBU0VSLFJFUFVFU1RPUyA=",
+          "ACCESORIOS LÁSER": "https://www.savin.com.bo/cortadoras-laser/marcasns.html?tkn=ODIsMCw3MSxDT1JUQURPUkFTIExBU0VSLEFDQ0VTT1JJT1MgTEFTRVI="
+        },
+        "3d": {
+          "INSUMOS 3D": "https://www.savin.com.bo/savin3d/modelodetalle.html?tkn=MTAsSU1QUkVTT1JBUyAzRCxJTlNVTU9TIDNELG51bGwsTW9uIEp1biAxMCAyMDI0IDE4OjE0OjI4IEdNVC0wNDAwIChCb2xpdmlhIFRpbWUp",
+          "MAQ. IMPRESORAS 3D": "https://www.savin.com.bo/savin3d/marcasns.html?tkn=MTEsMCw3MSxJTVBSRVNPUkFTIDNELE1BUS4gSU1QUkVTT1JBUyAzRCxNb24gSnVuIDEwIDIwMjQgMTg6MTQ6MzcgR01ULTA0MDAgKEJvbGl2aWEgVGltZSk=",
+          "REPUESTOS 3D": "https://www.savin.com.bo/savin3d/marcasns.html?tkn=NzIsMCw3MSxJTVBSRVNPUkFTIDNELFJFUFVFU1RPUyAzRCxNb24gSnVuIDEwIDIwMjQgMTg6MTQ6NDMgR01ULTA0MDAgKEJvbGl2aWEgVGltZSk=",
+          "SCANER 3D": "https://www.savin.com.bo/savin3d/marcasns.html?tkn=NzYsMCw3MSxJTVBSRVNPUkFTIDNELFNDQU5FUiAzRCxNb24gSnVuIDEwIDIwMjQgMTg6MTQ6NDkgR01ULTA0MDAgKEJvbGl2aWEgVGltZSk=",
+          "ACCESORIOS 3D": "https://www.savin.com.bo/savin3d/marcasns.html?tkn=ODMsMCw3MSxJTVBSRVNPUkFTIDNELFDQ0VTT1JJT1MgM0QsTW9uIEp1biAxMCAyMDI0IDE4OjE1OjAyIEdNVC0wNDAwIChCb2xpdmlhIFRpbWUp"
+        }
+      },
+      areaSelected: '',
     };
   },
   methods: {
     toggleChat() {
       if (this.showChat) {
-        this.clearMessages();
+        // this.clearMessages();
         this.clearAutocomplete();
         this.disableInput();
       }else {
@@ -125,7 +154,7 @@ export default {
     },
     handleOutsideClick(event) {
       if (!this.$el.contains(event.target) && this.showChat) {
-        this.clearMessages();
+        // this.clearMessages();
         this.clearAutocomplete();
         this.disableInput();
         this.showChat = false;
@@ -182,12 +211,12 @@ export default {
       }
     },
     redirectWithMessage(url) {
-    this.sendBotMessage("Serás redirigido en breve 😊");
-    const delay = Math.random() * 1000 + 500; 
-    setTimeout(() => {
-      window.location.href = url;
-    }, delay);
-  },
+      this.sendBotMessage("Serás redirigido en breve 😊");
+      const delay = Math.random() * 1000 + 500; 
+      setTimeout(() => {
+        window.location.href = url;
+      }, delay);
+    },
     handleBotResponse(userMessage) {
       this.showTypingIndicator();
       setTimeout(() => {
@@ -221,7 +250,7 @@ export default {
           case '1. ver tiendas en tu ciudad':
             this.addressSelected();
             break;
-          case '6. liquidaciones':
+          case '7. liquidaciones':
             this.openPromotionsAndOffers();
             break;
           case '📖 ver catálogos':
@@ -249,6 +278,8 @@ export default {
               // this.addressForCity(userMessage);
               this.nameCity = userMessage;
               this.addressForCity(this.nameCity);
+            } else if (this.areaSelected && this.getOptionsList(this.areaSelected).includes(userMessage)) {
+              this.openAreaSelected(this.getLinkRubroForArea(this.areaSelected, userMessage))
             } else {
               this.errorMessage();
             }
@@ -309,6 +340,11 @@ export default {
     async sendBotOptionsGrouped(options) {
       await this.delay(this.getRandomResponseTimeChatBotOptions());
       this.messages.push({ options: options, sender: 'groupedOptions' });
+      this.scrollToBottom();
+    },
+    async sendBotOptionsGroupedYellow(options) {
+      await this.delay(this.getRandomResponseTimeChatBotOptions());
+      this.messages.push({ options: options, sender: 'groupedOptionsYellow' });
       this.scrollToBottom();
     },
     delay(ms) {
@@ -486,6 +522,10 @@ export default {
       this.redirectWithMessage('https://www.savin.com.bo/liquidacion/');
       // window.location.href = 'https://www.savin.com.bo/liquidacion/';
     },
+    openAreaSelected(link) {
+      this.redirectWithMessage(link);
+    },
+    
     seeCatalogs() {
       this.sendBotOptions(this.listAreaCatalog);
     },
@@ -623,17 +663,39 @@ export default {
         </a>
       `;
     },
+    getOptionsList(text) {
+      this.areaSelected = text;
+      if (this.optionsArea[text]) {
+        return Object.keys(this.optionsArea[text]);
+      }
+      return [];
+    },
+    getLinkRubroForArea(area, rubro) {
+      if (this.optionsArea[area] && this.optionsArea[area][rubro]) {
+        return this.optionsArea[area][rubro];
+      }
+      return null;
+    },
+
     async whatsAppLinks(area) {
+      
+      
       const linksWhatsApp = {
         '4. Área de computación': [
-          "Iván", "74040348"
+          "Iván", "74040348", "computación"
         ],
         '5. Área 3D': [
-          "Rodri", "68068883"
-        ]
+          "Rodri", "68068883", "3d"
+        ],
+        '6. Área CORTADORES LÁSER': [
+          "Rodri", "68068883", "cortadores láser"
+          ]
       };
-
+          
       const advisor = linksWhatsApp[area];
+      
+      await this.sendBotMessage(`Rubros disponibles del área de ${advisor[2]}`);
+      await this.sendBotOptionsGroupedYellow(this.getOptionsList(advisor[2]));
 
       await this.sendBotMessage(`Nuestro especialista te atenderá con gusto 😊`);
 
@@ -1305,6 +1367,32 @@ export default {
 
 .chatbot-body::-webkit-scrollbar-thumb:hover {
   background-color: #bbb; /* Color del thumb cuando se pasa el mouse por encima */
+}
+
+/* botones de rubors agrupados */
+
+.options-grouped-container-yellow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  /* justify-content: center; */
+  margin-top: 10px;
+}
+
+.option-grouped-button-yellow {
+  background-color: #fdd835; /* Color amarillo */
+  color: black;
+  padding: 5px 15px;
+  border: none;
+  border-radius: 50px; /* Para que los bordes sean redondeados */
+  cursor: pointer;
+  font-weight: bold;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.option-grouped-button-yellow:hover {
+  background-color: #ffeb3b; /* Color amarillo más claro en el hover */
 }
 
 </style>
