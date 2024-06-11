@@ -172,7 +172,7 @@ export default {
     },
     startConversation() {
       if (this.messages.length === 0) {
-        console.log("Valor de idCiudad:", this.idCiudad);
+        // console.log("Valor de idCiudad:", this.idCiudad);
         if (this.idCiudad === 0) {
           this.welcome();
           this.registerCity();
@@ -186,10 +186,21 @@ export default {
     },
     sendMessage(userMessage) {
       if (this.isInputEnabled) {
-        this.showTemporaryMessage = true;
-        setTimeout(() => {
-          this.showTemporaryMessage = false;
-        }, 2000);
+        // this.sendDataGeneral(userMessage, this.idCiudad);
+        // this.userMessage = '';
+        
+        this.isInputEnabled = false;
+        this.messages.push({ text: userMessage, sender: 'user' });
+        this.handleBotResponse(userMessage);
+        this.autocompleteResults = [];  
+        this.userMessage = '';
+
+        // this.showTemporaryMessage = true;
+        // setTimeout(() => {
+        //   this.showTemporaryMessage = false;
+        // }, 2000);
+
+        this.scrollToBottom();
         return;
       }
 
@@ -201,13 +212,19 @@ export default {
         this.isInputEnabled = false;
         this.scrollToBottom();
       }
+
+      // console.log(this.messages);
     },
     checkEnter(event) {
-      if (event.key === 'Enter' && this.isInputEnabled) {
-        this.showTemporaryMessage = true;
-        setTimeout(() => {
-          this.showTemporaryMessage = false;
-        }, 2000);
+      // if (event.key === 'Enter' && this.isInputEnabled) {
+      if (event.key === 'Enter') {
+        this.sendDataGeneral(this.userMessage, this.idCiudad);
+        this.sendMessage(this.userMessage);
+
+        // this.showTemporaryMessage = true;
+        // setTimeout(() => {
+        //   this.showTemporaryMessage = false;
+        // }, 2000);
       }
     },
     redirectWithMessage(url) {
@@ -369,7 +386,7 @@ export default {
     async handleInput(event) {
       const query = event.target.value;
       if (query) {
-        const results = await this.getDataAutocomplete(query);
+        const results = await this.getDataAutocomplete(query, this.idCiudad);
         this.autocompleteResults = results;
       } else {
         this.autocompleteResults = [];
@@ -443,10 +460,15 @@ export default {
       }, 5000);
     },
 
+    // método que busca items cuando el usuario preciona [enter]
+    sendDataGeneral(userInput, cityId) {
+      console.log(`Texto del usuario: ${userInput}, Ciudad: ${cityId}`);
+    },
+
     // ..............
     // DESARROLLO
     selectAutocompleteResult(result) {
-      this.sendDataAutocomplete(result);
+      this.sendDataAutocomplete(result, this.idCiudad);
       this.autocompleteResults = [];
     },
 
@@ -506,9 +528,9 @@ export default {
       this.sendBotOptions(this.listArea);
     },
     getCityNameById(id) {
-      console.log("Valor de id:", id);
+      // console.log("Valor de id:", id);
       const city = this.listaContactos.find(contact => contact.id_ciudad === id);
-      console.log("Valor de city:", city);
+      // console.log("Valor de city:", city);
       return city ? city.title : 'error';
     },
     address() {
@@ -885,7 +907,7 @@ export default {
   position: fixed;
   bottom: 80px;
   right: 20px;
-  width: 320px;
+  width: 340px;
   height: 500px;
   background: #f0f0f0;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
