@@ -68,7 +68,7 @@ export default {
       botName: 'Conversa con nosotros',
       isInputEnabled: false,
       inputPlaceholder: 'Buscar producto...',
-      idCiudad: parseInt(sessionStorage.getItem("coddepto")) || 3,
+      idCiudad: parseInt(sessionStorage.getItem("coddepto")) || 1,
       // idCiudad: 1,
       listCity: ["La Paz", "El Alto", "Cochabamba", "Santa Cruz", "Tarija", "Sucre", "Oruro", "Potosí"],
       listArea: ["Impresoras 3D", "Fotocopiadoras", "Sublimación", "Cortadora láser", "Computadoras", "Bioseguridad", "Impresoras", "Papel", "Novedades", "Otros"],
@@ -171,13 +171,15 @@ export default {
       this.isInputEnabled = false;
     },
     startConversation() {
+      this.loadMessagesFromSession();
       if (this.messages.length === 0) {
         // console.log("Valor de idCiudad:", this.idCiudad);
         if (this.idCiudad === 0) {
           this.welcome();
           this.registerCity();
         } else {
-          this.nameCity= this.getCityNameById(this.idCiudad)
+          this.nameCity = this.getCityNameById(this.idCiudad);
+          console.log(this.nameCity, this.idCiudad);
           this.welcome();
           this.menu();
         }
@@ -199,7 +201,6 @@ export default {
         // setTimeout(() => {
         //   this.showTemporaryMessage = false;
         // }, 2000);
-
         this.scrollToBottom();
         return;
       }
@@ -225,6 +226,20 @@ export default {
         // setTimeout(() => {
         //   this.showTemporaryMessage = false;
         // }, 2000);
+      }
+    },
+    saveMessagesToSession() {
+      const messagesJSON = JSON.stringify(this.messages);
+      // console.log(messagesJSON);
+      sessionStorage.setItem('listaChatbot', messagesJSON);
+    },
+    loadMessagesFromSession() {
+      const savedMessages = sessionStorage.getItem('listaChatbot');
+      if (savedMessages) {
+        this.messages = JSON.parse(savedMessages);
+        
+        this.nameCity = this.getCityNameById(this.idCiudad);
+        // this.scrollToBottom();
       }
     },
     redirectWithMessage(url) {
@@ -338,7 +353,7 @@ export default {
       for (const option of options) {
         this.messages.push({ text: option, sender: 'option', disabled: false });
         this.scrollToBottom();
-      }
+        }
     },
     async sendBotOption(option) {
       await this.delay(this.getRandomResponseTimeChatBotOptions());
@@ -521,7 +536,8 @@ export default {
       this.sendBotMessage("No olvides revisar nuestra página web y nuestros productos aquí 👋🏻");
     },
     errorMessage() {
-      this.sendBotMessage("Lo siento, no entendí lo que dijiste 👀");
+      // this.sendBotMessage("Lo siento, no entendí lo que dijiste 👀");
+      this.sendBotMessage("Buscando producto... 👀");
       this.menu();
     },
     productsAndPrices() {
@@ -562,6 +578,8 @@ export default {
       return this.listCity.filter(city => city !== nameCity);
     },
     async addressForCity(city) {
+      
+
       const addresses = {
         'La Paz': [
           {
@@ -777,6 +795,7 @@ export default {
         const chatBody = this.$refs.chatBody;
         chatBody.scrollTop = chatBody.scrollHeight;
       });
+      this.saveMessagesToSession();
     },
     setCity(city) {
       const selectedContact = this.listaContactos.find(contact => contact.title === city);
