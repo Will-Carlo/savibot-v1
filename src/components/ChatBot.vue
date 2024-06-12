@@ -3,7 +3,7 @@
     <div class="chatbot-button-wrapper">
       <div class="chatbot-button" @click="toggleChat">
         <div class="chatbot-tooltip" :class="{ show: showTooltip && !showChat }">
-          ¿Necesitas ayuda? <br> <strong>Converse con nosotros</strong>
+          ¿Necesitas ayuda? <br> <strong>Conversa con nosotros</strong>
         </div>
       </div>
     </div>
@@ -221,6 +221,7 @@ export default {
       if (event.key === 'Enter') {
         this.sendDataGeneral(this.userMessage, this.idCiudad);
         this.sendMessage(this.userMessage);
+        this.sendBotMessage(`Buscando producto... 👀`);
 
         // this.showTemporaryMessage = true;
         // setTimeout(() => {
@@ -536,8 +537,7 @@ export default {
       this.sendBotMessage("No olvides revisar nuestra página web y nuestros productos aquí 👋🏻");
     },
     errorMessage() {
-      // this.sendBotMessage("Lo siento, no entendí lo que dijiste 👀");
-      this.sendBotMessage("Buscando producto... 👀");
+      this.sendBotMessage("Lo siento, no entendí lo que dijiste 👀");
       this.menu();
     },
     productsAndPrices() {
@@ -1420,27 +1420,28 @@ export default {
   background-color: #bbb; /* Color del thumb cuando se pasa el mouse por encima */
 }
 
-/* botones de rubors agrupados */
+/* botones de rubros agrupados */
 
 .options-grouped-container-yellow {
   display: flex;
   flex-wrap: wrap;
   gap: 3px;
   /* justify-content: center; */
-  margin-top: 10px;
+  margin: 10px 0px;
 }
 
 .option-grouped-button-yellow {
   background-color: #fdd835; /* Color amarillo */
   color: black;
-  padding: 5px 15px;
+  padding: 4px 9px;
   border: none;
   border-radius: 50px; /* Para que los bordes sean redondeados */
   cursor: pointer;
   font-weight: bold;
   text-align: center;
   white-space: nowrap;
-}
+  font-size: 10px; 
+} 
 
 .option-grouped-button-yellow:hover {
   background-color: #ffeb3b; /* Color amarillo más claro en el hover */
