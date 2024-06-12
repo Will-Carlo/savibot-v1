@@ -34,6 +34,9 @@
               {{ option }}
             </button>
           </div>
+          <div v-else-if="message.sender === 'option-principal-menu'" class="option-principal-menu-button" @click="sendMessage(message.text)">
+            {{ message.text }}
+          </div>
           <div v-else class="message-bubble" v-html="message.text" @click="message.sender === 'option' && !message.disabled ? sendMessage(message.text) : null"></div>
         </div>
       </div>
@@ -72,8 +75,8 @@ export default {
       // idCiudad: 1,
       listCity: ["La Paz", "El Alto", "Cochabamba", "Santa Cruz", "Tarija", "Sucre", "Oruro", "Potosí"],
       listArea: ["Impresoras 3D", "Fotocopiadoras", "Sublimación", "Cortadora láser", "Computadoras", "Bioseguridad", "Impresoras", "Papel", "Novedades", "Otros"],
-      listMenu: ["1. Ver tiendas en tu ciudad", "2. Horarios de atención", "3. Buscar un producto", "4. Área de computación", "5. Área 3D",  "6. Área CORTADORES LÁSER", "7. Liquidaciones"],
-      listAreaSupport: ["5. Área 3D", "🙋🏻‍♂️ Máquinas láser", "4. Área de computación", "🙋🏻‍♂️ Sublimación", "🙋🏻‍♂️ Atención general", "6. Área CORTADORES LÁSER"],
+      listMenu: ["1. Ver tiendas en tu ciudad", "2. Horarios de atención", "3. Buscar un producto", "4. Área de computación", "5. Área 3D",  "6. Área CORTADORAS LÁSER", "7. Liquidaciones"],
+      listAreaSupport: ["5. Área 3D", "🙋🏻‍♂️ Máquinas láser", "4. Área de computación", "🙋🏻‍♂️ Sublimación", "🙋🏻‍♂️ Atención general", "6. Área CORTADORAS LÁSER"],
       listCitySupport: ["➡️ La Paz", "➡️ El Alto", "➡️ Cochabamba", "➡️ Santa Cruz", "➡️ Tarija", "➡️ Sucre", "➡️ Oruro", "➡️ Potosí"],
       listAreaCatalog: ["📰 Impresoras 3D", "📰 Fotocopiadoras", "📰 Sublimación", "📰 Cortadora láser", "📰 Computadoras", "📰 Bioseguridad", "📰 Impresoras", "📰 Papel", "📰 Novedades", "📰 Otros"],
       listaContactos: [
@@ -356,6 +359,13 @@ export default {
         this.scrollToBottom();
         }
     },
+    async sendBotOptionsPrincipalMenu(options) {
+      await this.delay(this.getRandomResponseTimeChatBotOptions());
+      for (const option of options) {
+        this.messages.push({ text: option, sender: 'option-principal-menu', disabled: false });
+        this.scrollToBottom();
+      }
+    },
     async sendBotOption(option) {
       await this.delay(this.getRandomResponseTimeChatBotOptions());
       this.messages.push({ text: option, sender: 'option', disabled: false });
@@ -497,7 +507,8 @@ export default {
     },
     menu() {
       this.sendBotMessageOptions("¿En qué podemos ayudarte? 👇🏻");
-      this.sendBotOptions(this.listMenu);
+      // this.sendBotOptions(this.listMenu);
+      this.sendBotOptionsPrincipalMenu(this.listMenu);
     },
     preMenu(){
       this.sendBotMessage("¿En qué puedo ayudarte hoy? 😃");
@@ -1476,6 +1487,30 @@ export default {
 .pdf-download-button span {
   font-weight: bold; /* Texto en negrita */
   font-size: 11px; /* Ajusta el tamaño del texto aquí */
+}
+
+/* nuevo estilo de menú principal */
+
+.option-principal-menu-button {
+  display: block; /* Hacer que el botón sea un elemento de bloque */
+  width: calc(100% - 20px); /* Asegurar que el botón ocupe todo el ancho disponible con algo de margen */
+  margin: -2px 13px; /* Espaciado automático a los lados y margen vertical */
+  padding: 9px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  cursor: pointer;
+  font-size: 18px; /* Tamaño del texto */
+  color: #25D366; /* Color del texto */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+  text-align: center; /* Alinear el texto a la izquierda */
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.option-principal-menu-button:hover {
+  background-color: #c1ffd8; /* Fondo gris claro en hover */
 }
 
 
