@@ -703,6 +703,14 @@ export default {
         </a>
       `;
     },
+    generatePDFDownloadButton(link, buttonText) {
+    return `
+        <a href="${link}" target="_blank" download class="pdf-download-button">
+          <img src="https://cdn.glitch.global/fb88d943-304b-4312-be00-868b389c37cf/free-download-1767976-1502312.webp?v=1718216961750" alt="Download" class="pdf-download-icon" />
+          <span>${buttonText}</span>
+        </a>
+      `;
+    },  
     getOptionsList(text) {
       this.areaSelected = text;
       if (this.optionsArea[text]) {
@@ -722,13 +730,13 @@ export default {
       
       const linksWhatsApp = {
         '4. Área de computación': [
-          "Iván", "74040348", "computación"
+          "Iván", "74040348", "computación", "https://www.savin.com.bo/catalogo/catalogo_junio_computacion.pdf"
         ],
         '5. Área 3D': [
-          "Rodri", "68068883", "3d"
+          "Rodri", "68068883", "3d", "https://www.savin.com.bo/catalogo/catalogo_junio_impresora3d.pdf"
         ],
         '6. Área CORTADORES LÁSER': [
-          "Rodri", "68068883", "cortadores láser"
+          "Rodri", "68068883", "cortadores láser", "https://www.savin.com.bo/catalogo/catalogo_junio_cortadora_grabadora.pdf"
           ]
       };
           
@@ -736,6 +744,8 @@ export default {
       
       await this.sendBotMessage(`Rubros disponibles del área de ${advisor[2]}`);
       await this.sendBotOptionsGroupedYellow(this.getOptionsList(advisor[2]));
+
+      await this.sendBotMessage(this.generatePDFDownloadButton(advisor[3], 'Descarga nuestro CATÁLOGO DEL MES'));
 
       await this.sendBotMessage(`Nuestro especialista te atenderá con gusto 😊`);
 
@@ -1435,5 +1445,37 @@ export default {
 .option-grouped-button-yellow:hover {
   background-color: #ffeb3b; /* Color amarillo más claro en el hover */
 }
+
+/* botón del PDF */
+
+.pdf-download-button {
+  display: inline-flex;
+  align-items: center;
+  background-color: #fff; /* Fondo blanco */
+  color: #333; /* Color del texto */
+  padding: 5px 10px;
+  border: 1px solid #ccc; /* Borde gris claro */
+  border-radius: 5px;
+  text-decoration: none;
+  margin: 5px 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.pdf-download-button:hover {
+  background-color: #f0f0f0; /* Fondo gris claro en hover */
+}
+
+.pdf-download-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+}
+
+.pdf-download-button span {
+  font-weight: bold; /* Texto en negrita */
+  font-size: 11px; /* Ajusta el tamaño del texto aquí */
+}
+
 
 </style>
