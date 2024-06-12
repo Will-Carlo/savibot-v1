@@ -75,7 +75,7 @@ export default {
       // idCiudad: 1,
       listCity: ["La Paz", "El Alto", "Cochabamba", "Santa Cruz", "Tarija", "Sucre", "Oruro", "Potosí"],
       listArea: ["Impresoras 3D", "Fotocopiadoras", "Sublimación", "Cortadora láser", "Computadoras", "Bioseguridad", "Impresoras", "Papel", "Novedades", "Otros"],
-      listMenu: ["1. Ver tiendas en tu ciudad", "2. Horarios de atención", "3. Buscar un producto", "4. Área de computación", "5. Área 3D",  "6. Área CORTADORAS LÁSER", "7. Liquidaciones"],
+      listMenu: ["1. Ver tiendas en tu ciudad", "2. Horarios de atención", "3. Buscar un producto", "4. Área de computación", "5. Área 3D",  "6. Área CORTADORAS LÁSER"],
       listAreaSupport: ["5. Área 3D", "🙋🏻‍♂️ Máquinas láser", "4. Área de computación", "🙋🏻‍♂️ Sublimación", "🙋🏻‍♂️ Atención general", "6. Área CORTADORAS LÁSER"],
       listCitySupport: ["➡️ La Paz", "➡️ El Alto", "➡️ Cochabamba", "➡️ Santa Cruz", "➡️ Tarija", "➡️ Sucre", "➡️ Oruro", "➡️ Potosí"],
       listAreaCatalog: ["📰 Impresoras 3D", "📰 Fotocopiadoras", "📰 Sublimación", "📰 Cortadora láser", "📰 Computadoras", "📰 Bioseguridad", "📰 Impresoras", "📰 Papel", "📰 Novedades", "📰 Otros"],
@@ -1497,16 +1497,16 @@ export default {
   margin: -2px 13px; /* Espaciado automático a los lados y margen vertical */
   padding: 9px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 0px;
   background-color: #fff;
   cursor: pointer;
   font-size: 18px; /* Tamaño del texto */
-  color: #25D366; /* Color del texto */
+  color: #1da74f; /* Color del texto */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s ease;
   text-align: center; /* Alinear el texto a la izquierda */
   font-weight: bold;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .option-principal-menu-button:hover {
