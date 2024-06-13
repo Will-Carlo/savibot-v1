@@ -191,9 +191,6 @@ export default {
     },
     sendMessage(userMessage) {
       if (this.isInputEnabled) {
-        // this.sendDataGeneral(userMessage, this.idCiudad);
-        // this.userMessage = '';
-        
         this.isInputEnabled = false;
         this.messages.push({ text: userMessage, sender: 'user' });
         this.handleBotResponse(userMessage);
@@ -211,7 +208,7 @@ export default {
       if (userMessage.trim() !== '') {
         this.messages.push({ text: userMessage, sender: 'user' });
         // this.disablePreviousOptions();
-        this.handleBotResponse(userMessage);
+        this.handleBotResponse(userMessage);                                                                                                                                                                                                                                                                                                                                                                                                                                 
         this.userMessage = '';
         this.isInputEnabled = false;
         this.scrollToBottom();
@@ -947,7 +944,7 @@ export default {
   position: fixed;
   bottom: 80px;
   right: 20px;
-  width: 340px;
+  width: 345px;
   height: 500px;
   background: #f0f0f0;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -1028,9 +1025,9 @@ export default {
 }
 
 
-.bot-message-with-options {
-  margin-bottom: 15px; /* Ajusta este valor según lo necesario */
-}
+/* .bot-message-with-options {
+  margin-bottom: 7px; 
+} */
 
 
 .message-bubble {
@@ -1171,9 +1168,9 @@ export default {
 
 .two-option-button {
   flex: 0 1 auto;
-  margin: 5px;
+  margin: 9px 3px 0px 0px;
   padding: 5px 15px;
-  background-color: #25D366;
+  background-color: #06ce4f;
   color: white;
   border: none;
   border-radius: 5px;
@@ -1182,6 +1179,11 @@ export default {
   align-items: center;
   justify-content: center;
 }
+
+.two-option-button:hover {
+  background-color: #52f08c;
+}
+
 
 .two-option-button:disabled {
   background-color: #a4d3a2;
@@ -1194,8 +1196,13 @@ export default {
   justify-content: center;
   text-align: center;
   white-space: nowrap; /* Para evitar que el texto se divida en varias líneas */
+  font-size: 11px;
 }
 
+/* 
+.two-option-content:hover {
+  font-size: 13px;
+} */
 
 /* tool tip */
 
@@ -1486,7 +1493,7 @@ export default {
 
 .pdf-download-button span {
   font-weight: bold; /* Texto en negrita */
-  font-size: 11px; /* Ajusta el tamaño del texto aquí */
+  font-size: 13px; /* Ajusta el tamaño del texto aquí */
 }
 
 /* nuevo estilo de menú principal */
