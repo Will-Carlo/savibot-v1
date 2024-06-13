@@ -37,6 +37,7 @@
           <div v-else-if="message.sender === 'option-principal-menu'" class="option-principal-menu-button" @click="sendMessage(message.text)">
             {{ message.text }}
           </div>
+          <div v-else-if="message.sender === 'simple-option'" class="simple-option-container" v-html="message.text"></div>
           <div v-else class="message-bubble" v-html="message.text" @click="message.sender === 'option' && !message.disabled ? sendMessage(message.text) : null"></div>
         </div>
       </div>
@@ -69,14 +70,20 @@ export default {
       showChat: false,
       showTooltip: true,
       botName: 'Conversa con nosotros',
-      isInputEnabled: false,
+      isInputEnabled: true,
       inputPlaceholder: 'Buscar producto...',
       idCiudad: parseInt(sessionStorage.getItem("coddepto")) || 1,
       // idCiudad: 1,
       listCity: ["La Paz", "El Alto", "Cochabamba", "Santa Cruz", "Tarija", "Sucre", "Oruro", "Potosí"],
       listArea: ["Impresoras 3D", "Fotocopiadoras", "Sublimación", "Cortadora láser", "Computadoras", "Bioseguridad", "Impresoras", "Papel", "Novedades", "Otros"],
-      listMenu: ["1. Ver tiendas en tu ciudad", "2. Horarios de atención", "3. Buscar un producto", "4. Área de computación", "5. Área 3D",  "6. Área CORTADORAS LÁSER"],
-      listAreaSupport: ["5. Área 3D", "🙋🏻‍♂️ Máquinas láser", "4. Área de computación", "🙋🏻‍♂️ Sublimación", "🙋🏻‍♂️ Atención general", "6. Área CORTADORAS LÁSER"],
+      listMenu: [
+                  "VER TIENDAS EN TU CIUDAD 🏬",
+                  "HORARIOS DE ATENCIÓN 🕒",
+                  "ÁREA DE COMPUTACIÓN 💻",
+                  "ÁREA 3D 🚀",
+                  "ÁREA CORTADORAS LÁSER 🔦"
+                ],
+      listAreaSupport: ["ÁREA DE COMPUTACIÓN 💻", "ÁREA 3D 🚀", "ÁREA CORTADORAS LÁSER 🔦", "🙋🏻‍♂️ Sublimación", "🙋🏻‍♂️ Atención general"],
       listCitySupport: ["➡️ La Paz", "➡️ El Alto", "➡️ Cochabamba", "➡️ Santa Cruz", "➡️ Tarija", "➡️ Sucre", "➡️ Oruro", "➡️ Potosí"],
       listAreaCatalog: ["📰 Impresoras 3D", "📰 Fotocopiadoras", "📰 Sublimación", "📰 Cortadora láser", "📰 Computadoras", "📰 Bioseguridad", "📰 Impresoras", "📰 Papel", "📰 Novedades", "📰 Otros"],
       listaContactos: [
@@ -171,7 +178,7 @@ export default {
       this.autocompleteResults = [];
     },
     disableInput() {
-      this.isInputEnabled = false;
+      // this.isInputEnabled = false;
     },
     startConversation() {
       this.loadMessagesFromSession();
@@ -191,7 +198,7 @@ export default {
     },
     sendMessage(userMessage) {
       if (this.isInputEnabled) {
-        this.isInputEnabled = false;
+        this.disableInput();
         this.messages.push({ text: userMessage, sender: 'user' });
         this.handleBotResponse(userMessage);
         this.autocompleteResults = [];  
@@ -210,7 +217,7 @@ export default {
         // this.disablePreviousOptions();
         this.handleBotResponse(userMessage);                                                                                                                                                                                                                                                                                                                                                                                                                                 
         this.userMessage = '';
-        this.isInputEnabled = false;
+        this.disableInput();
         this.scrollToBottom();
       }
 
@@ -255,6 +262,7 @@ export default {
       setTimeout(() => {
         this.hideTypingIndicator();
         switch (userMessage.toLowerCase()) {
+        // switch (userMessage) {
           case '🤖 empezar':
             this.welcome();
             break;
@@ -268,7 +276,7 @@ export default {
           case '✅ menú':
             this.menu();
             break;
-          case '2. horarios de atención':
+          case 'horarios de atención 🕒':
             this.attentionSchedule();
             break;
           case '✅ sí':
@@ -280,7 +288,7 @@ export default {
           case '📦 productos y precios':
             this.productsAndPrices();
             break;
-          case '1. ver tiendas en tu ciudad':
+          case 'ver tiendas en tu ciudad 🏬':
             this.addressSelected();
             break;
           case '7. liquidaciones':
@@ -387,6 +395,11 @@ export default {
       this.messages.push({ options: options, sender: 'groupedOptionsYellow' });
       this.scrollToBottom();
     },
+    async sendBotMessageSimpleOption(buttonHtml) {
+      await this.delay(this.getRandomResponseTimeChat());
+      this.messages.push({ text: buttonHtml, sender: 'simple-option' });
+      this.scrollToBottom();
+    },
     delay(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
     },
@@ -400,7 +413,7 @@ export default {
     enableProductSearch() {
       this.sendBotMessage("Por favor, escribe el nombre del producto que estás buscando 👇🏻");
       this.isInputEnabled = true;
-      this.inputPlaceholder = 'Escriba el nombre del producto...';
+      // this.inputPlaceholder = 'Escriba el nombre del producto...';
       this.$nextTick(() => {
         this.$refs.userInput.focus();
         this.scrollToBottom();
@@ -658,16 +671,17 @@ export default {
       };
       // await this.sendBotMessage(`Nuestra ubicación y contacto 👇🏻`);
 
-      await this.sendBotMessage(`Tiendas disponibles en la ciudad de ${this.nameCity}`);
+      await this.sendBotMessage(`Tiendas disponibles en la ciudad de <b>${this.nameCity}</b>`);
 
 
       for (const contact of addresses[city]) {
         await this.sendBotMessage(`
           <div class='address-container'>
-            <span class='address-icon'>📌</span>${contact.description}<br>
-            ${this.generateMapsButton(contact.address)}<br>
+            <span class='address-icon'>📌</span>${contact.description}, 
             <span class='phone-icon'>📲</span>
             <a href='https://api.whatsapp.com/send/?phone=591${contact.phone}&text&type=phone_number&app_absent=0' target='_blank'>${contact.phone}</a>
+            <br>
+            ${this.generateMapsButton(contact.address)}
             <br>
             ${this.generateWhatsAppButton(contact.phone)}
             <br>
@@ -681,7 +695,7 @@ export default {
 
 
       
-      await this.sendBotMessage("También estamos en estas ciudades");
+      await this.sendBotMessage("También estamos en otras ciudades");
       await this.sendBotOptionsGrouped(this.filterCities(this.nameCity));
 
       this.menuPreEnd();
@@ -689,7 +703,7 @@ export default {
     generateWhatsAppButton(phoneNumber) {
       const whatsappBaseUrl = "https://api.whatsapp.com/send/?phone=591";
       return `
-        <a href='${whatsappBaseUrl}${phoneNumber}&text&type=phone_number&app_absent=0' target='_blank' class='whatsapp-button'>
+        <a href='${whatsappBaseUrl}${phoneNumber}&text&type=phone_number&app_absent=0' target='_blank' class='button-full-width whatsapp-button'>
           <img src='https://cdn.glitch.global/fb88d943-304b-4312-be00-868b389c37cf/whatsapp_logo_icon_229310.png?v=1717776398635' alt='WhatsApp' class='whatsapp-icon' />
           <span>Iniciar conversación</span>
         </a>
@@ -697,7 +711,7 @@ export default {
     },
     generateMapsButton(googleMapsUrl) {
       return `
-        <a href='${googleMapsUrl}' target='_blank' class='maps-button'>
+        <a href='${googleMapsUrl}' target='_blank' class='button-full-width maps-button'>
           <img src='https://cdn.glitch.global/fb88d943-304b-4312-be00-868b389c37cf/google-maps-icon-free-png.webp?v=1717799314299' alt='Google Maps' class='maps-icon' />
           <span>Abrir ubicación</span>
         </a>
@@ -705,7 +719,7 @@ export default {
     },
     generateSearchButton() {
       return `
-        <a href="#" class="search-button search-button-custom">
+        <a href="#" class="button-full-width search-button search-button-custom">
           <img src="https://cdn.glitch.global/fb88d943-304b-4312-be00-868b389c37cf/binoculars_78394.png?v=1718033434301" alt="Buscar" class="search-icon" />
           <span>Buscar un producto</span>
         </a>
@@ -737,13 +751,13 @@ export default {
       
       
       const linksWhatsApp = {
-        '4. Área de computación': [
+        'ÁREA DE COMPUTACIÓN 💻': [
           "Iván", "74040348", "computación", "https://www.savin.com.bo/catalogo/catalogo_junio_computacion.pdf"
         ],
-        '5. Área 3D': [
+        'ÁREA 3D 🚀': [
           "Rodri", "68068883", "3d", "https://www.savin.com.bo/catalogo/catalogo_junio_impresora3d.pdf"
         ],
-        '6. Área CORTADORES LÁSER': [
+        'ÁREA CORTADORAS LÁSER 🔦': [
           "Rodri", "68068883", "cortadores láser", "https://www.savin.com.bo/catalogo/catalogo_junio_cortadora_grabadora.pdf"
           ]
       };
@@ -753,20 +767,18 @@ export default {
       await this.sendBotMessage(`Rubros disponibles del área de ${advisor[2]}`);
       await this.sendBotOptionsGroupedYellow(this.getOptionsList(advisor[2]));
 
-      await this.sendBotMessage(this.generatePDFDownloadButton(advisor[3], 'Descarga nuestro CATÁLOGO DEL MES'));
-
-      await this.sendBotMessage(`Nuestro especialista te atenderá con gusto 😊`);
-
+      await this.sendBotMessageSimpleOption(this.generatePDFDownloadButton(advisor[3], 'Descarga nuestro CATÁLOGO DEL MES'));
+      
       if (advisor) {
         await this.sendBotMessage(`
           <div class='address-container'>
+            Nuestro especialista te atenderá con gusto<br>  
             <span class='phone-icon'>📲</span> ${advisor[0]}: ${advisor[1]}
-            <br>
-            ${this.generateWhatsAppButton(advisor[1])}
-          </div>
+            </div>
         `);
+        await this.sendBotMessageSimpleOption(this.generateWhatsAppButton(advisor[1]));
       }
-
+            
       this.menuPreEnd();
     },
 
@@ -1445,7 +1457,7 @@ export default {
   flex-wrap: wrap;
   gap: 3px;
   /* justify-content: center; */
-  margin: 10px 0px;
+  margin: 3px 0px;
 }
 
 .option-grouped-button-yellow {
@@ -1470,7 +1482,7 @@ export default {
 .pdf-download-button {
   display: inline-flex;
   align-items: center;
-  background-color: #fff; /* Fondo blanco */
+  background-color: #ECECEC; /* Fondo blanco */
   color: #333; /* Color del texto */
   padding: 5px 10px;
   border: 1px solid #ccc; /* Borde gris claro */
@@ -1482,7 +1494,7 @@ export default {
 }
 
 .pdf-download-button:hover {
-  background-color: #f0f0f0; /* Fondo gris claro en hover */
+  background-color: #ffffff; /* Fondo gris claro en hover */
 }
 
 .pdf-download-icon {
@@ -1518,6 +1530,40 @@ export default {
 
 .option-principal-menu-button:hover {
   background-color: #c1ffd8; /* Fondo gris claro en hover */
+}
+
+/* enviar los botones de forma simple */
+.simple-option-container {
+  margin: 1px 0; /* Ajusta el margen superior e inferior */
+}
+
+/* mismo ancho para los botones whatsapp maps y buscador */
+.button-full-width {
+  /* display: inline-flex;
+  align-items: center; */
+  /* background-color: #00aaff; */
+  /* color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  text-decoration: none;
+  margin: 1px 0px 1px 9px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); */
+  width: calc(100% - 18px); /* Asegura que el botón ocupe el ancho completo menos el margen */
+  box-sizing: border-box; /* Incluye el padding y el borde en el cálculo del ancho */
+}
+
+/* .button-full-width img {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+} */
+
+.button-full-width span {
+  color: white; /* Asegura que el texto dentro del botón esté en color blanco */
+}
+
+.button-full-width:hover {
+  text-decoration: none;
 }
 
 
