@@ -11,7 +11,7 @@
     <div v-if="showChat" class="chatbot" @mouseleave="keepChatOpen">
       <div class="chatbot-header">
         <h3>Hola Bienvenido 👋🏻</h3>
-        <p>Ciudad seleccionada: {{ nameCity }}</p>
+        <p>Ciudad seleccionada: <strong style="font-size: 21px;">{{ nameCity }}</strong></p>
         <button class="close-btn" @click="toggleChat">×</button>
       </div>
       <div ref="chatBody" class="chatbot-body">
@@ -190,7 +190,7 @@ export default {
         } else {
           this.nameCity = this.getCityNameById(this.idCiudad);
           console.log(this.nameCity, this.idCiudad);
-          this.welcome();
+          // this.welcome();
           this.menu();
         }
       }
@@ -226,7 +226,7 @@ export default {
     checkEnter(event) {
       // if (event.key === 'Enter' && this.isInputEnabled) {
       if (event.key === 'Enter') {
-        this.sendDataGeneral(this.userMessage, this.idCiudad);
+        sendDataGeneral(this.userMessage, this.idCiudad);
         this.sendMessage(this.userMessage);
         this.sendBotMessage(`Buscando producto... 👀`);
 
@@ -422,7 +422,7 @@ export default {
     async handleInput(event) {
       const query = event.target.value;
       if (query) {
-        const results = await this.getDataAutocomplete(query, this.idCiudad);
+        const results = await getDataAutocomplete(query, this.idCiudad);
         this.autocompleteResults = results;
       } else {
         this.autocompleteResults = [];
@@ -431,80 +431,80 @@ export default {
     // DESARROLLO 
     // ..............
     // método de busqueda de productos
-    async getDataAutocomplete() {
-      return new Promise(resolve => {
-        setTimeout(() => {
-          resolve([
-            {
-              "idCategoria": "2",
-              "ordenLista": 1,
-              "nombreCategoria": "IMPRESORAS",
-              "idRubro": "7",
-              "nombreRubro": "INSUMOS IMPRESORAS",
-              "nombreProducto": "<b>TONER</b> para IMPRESORAS INSUMOS IMPRESORAS",
-              "idMarca": "37",
-              "query": "TONER",
-              "tipoBusqueda": 1
-            },
-            {
-              "idCategoria": "1",
-              "ordenLista": 1,
-              "nombreCategoria": "FOTOCOPIADORAS",
-              "idRubro": "2",
-              "nombreRubro": "REPUESTOS",
-              "nombreProducto": "<b>TONER</b> para FOTOCOPIADORAS REPUESTOS",
-              "idMarca": "7",
-              "query": "TONER",
-              "tipoBusqueda": 1
-            },
-            {
-              "idCategoria": "1",
-              "ordenLista": 1,
-              "nombreCategoria": "FOTOCOPIADORAS",
-              "idRubro": "46",
-              "nombreRubro": "CHIPS P/TONER",
-              "nombreProducto": "<b>TONER</b> para FOTOCOPIADORAS CHIPS P/TONER",
-              "idMarca": "105",
-              "query": "TONER",
-              "tipoBusqueda": 1
-            },
-            {
-              "idCategoria": "1",
-              "ordenLista": 1,
-              "nombreCategoria": "FOTOCOPIADORAS",
-              "idRubro": "1",
-              "nombreRubro": "INSUMOS",
-              "nombreProducto": "<b>TONER</b> para FOTOCOPIADORAS INSUMOS",
-              "idMarca": "17",
-              "query": "TONER",
-              "tipoBusqueda": 1
-            }
-          ]);
-        }, 500);
-      });
-    },
+    // async getDataAutocomplete() {
+    //   return new Promise(resolve => {
+    //     setTimeout(() => {
+    //       resolve([
+    //         {
+    //           "idCategoria": "2",
+    //           "ordenLista": 1,
+    //           "nombreCategoria": "IMPRESORAS",
+    //           "idRubro": "7",
+    //           "nombreRubro": "INSUMOS IMPRESORAS",
+    //           "nombreProducto": "<b>TONER</b> para IMPRESORAS INSUMOS IMPRESORAS",
+    //           "idMarca": "37",
+    //           "query": "TONER",
+    //           "tipoBusqueda": 1
+    //         },
+    //         {
+    //           "idCategoria": "1",
+    //           "ordenLista": 1,
+    //           "nombreCategoria": "FOTOCOPIADORAS",
+    //           "idRubro": "2",
+    //           "nombreRubro": "REPUESTOS",
+    //           "nombreProducto": "<b>TONER</b> para FOTOCOPIADORAS REPUESTOS",
+    //           "idMarca": "7",
+    //           "query": "TONER",
+    //           "tipoBusqueda": 1
+    //         },
+    //         {
+    //           "idCategoria": "1",
+    //           "ordenLista": 1,
+    //           "nombreCategoria": "FOTOCOPIADORAS",
+    //           "idRubro": "46",
+    //           "nombreRubro": "CHIPS P/TONER",
+    //           "nombreProducto": "<b>TONER</b> para FOTOCOPIADORAS CHIPS P/TONER",
+    //           "idMarca": "105",
+    //           "query": "TONER",
+    //           "tipoBusqueda": 1
+    //         },
+    //         {
+    //           "idCategoria": "1",
+    //           "ordenLista": 1,
+    //           "nombreCategoria": "FOTOCOPIADORAS",
+    //           "idRubro": "1",
+    //           "nombreRubro": "INSUMOS",
+    //           "nombreProducto": "<b>TONER</b> para FOTOCOPIADORAS INSUMOS",
+    //           "idMarca": "17",
+    //           "query": "TONER",
+    //           "tipoBusqueda": 1
+    //         }
+    //       ]);
+    //     }, 500);
+    //   });
+    // },
 
-    // método de enviar producto seleccionado
-    sendDataAutocomplete(param) {
-      // Mostrar el objeto en la consola
-      console.log('Objeto seleccionado:', param);
+    // // método de enviar producto seleccionado
+    // sendDataAutocomplete(param) {
+    //   // Mostrar el objeto en la consola
+    //   console.log('Objeto seleccionado:', param);
 
-      // Esperar 5 segundos y actualizar la página
-      setTimeout(() => {
-        console.log('recarga');
-        // window.location.reload();
-      }, 5000);
-    },
+    //   // Esperar 5 segundos y actualizar la página
+    //   setTimeout(() => {
+    //     console.log('recarga');
+    //     // window.location.reload();
+    //   }, 5000);
+    // },
 
-    // método que busca items cuando el usuario preciona [enter]
-    sendDataGeneral(userInput, cityId) {
-      console.log(`Texto del usuario: ${userInput}, Ciudad: ${cityId}`);
-    },
+    // // método que busca items cuando el usuario preciona [enter]
+    // sendDataGeneral(userInput, cityId) {
+    //   console.log(`Texto del usuario: ${userInput}, Ciudad: ${cityId}`);
+    // },
 
     // ..............
     // DESARROLLO
     selectAutocompleteResult(result) {
-      this.sendDataAutocomplete(result, this.idCiudad);
+      sendDataAutocomplete(result, this.idCiudad);
       this.autocompleteResults = [];
     },
 
@@ -604,91 +604,83 @@ export default {
       const addresses = {
         'La Paz': [
           {
-            address: "https://maps.app.goo.gl/tNsAqrArK2NfGnM47",
-            description: "Calle Loayza # 349, local 3 (Frente a la facultad de Derecho UMSA)",
+            address: "https://maps.app.goo.gl/Jaeyw86zfhZybJag6",
+            description: "Calle Loayza # 349, local 3 <b>(Frente a la facultad de Derecho UMSA)</b>",
             phone: "72030101"
           },
           {
-            address: "https://maps.app.goo.gl/vnP2W9hk2oJZMSwx5",
-            description: "Calle Zapata # 141 (frente Monoblock UMSA)",
+            address: "https://maps.app.goo.gl/S3H7hnDYPxdsdkzj7",
+            description: "Calle Zapata # 141 <b>(frente Monoblock UMSA)</b>",
             phone: "72030107"
           }
         ],
         'El Alto': [
           {
-            address: "https://maps.app.goo.gl/vTUrQCpyNQmC24hH6",
-            description: "Av. Juan Pablo II Edif. EI Ceibo Local A-15 (Final Autopista casi esq. Rene Dorado)",
+            address: "https://maps.app.goo.gl/8aic1TmbHBULVWTV8",
+            description: "Av. Juan Pablo II Edif. EI Ceibo Local A-15 <b>(Final Autopista casi esq. Rene Dorado)</b>",
             phone: "72029023"
           },
           {
-            address: "https://maps.app.goo.gl/bagfMNGR4GSmpom9A",
-            description: "Avenida Satélite # 668 (Cerca al Banco Mercantil Santa Cruz)",
+            address: "https://maps.app.goo.gl/3b2wvZZ3rFan5nXLA",
+            description: "Avenida Satélite # 668 <b>(Cerca al Banco Mercantil Santa Cruz)</b>",
             phone: "71543980"
           }
         ],
         'Cochabamba': [
           {
-            address: "https://maps.app.goo.gl/6MfeLnrtaiAk9p6y9",
-            description: "Calle Sucre # 882 (Casi esquina Oquendo)",
+            address: "https://maps.app.goo.gl/tCEMbEkSAc5EKHKD6",
+            description: "Calle Sucre # 882 <b>(Casi esquina Oquendo)</b>",
             phone: "72030102"
           }
         ],
         'Santa Cruz': [
           {
-            address: "https://maps.app.goo.gl/1xw1r9zfBwv1pQJK6",
-            description: "Avenida Centenario # 113 casi esquina Palermo (entre primer y segundo anillo)",
+            address: "https://maps.app.goo.gl/RLxbcr5wNug8RAgU6",
+            description: "Avenida Centenario # 113 casi esquina Palermo <b>(entre primer y segundo anillo)</b>",
             phone: "72030103"
           }
         ],
         'Tarija': [
           {
-            address: "https://maps.app.goo.gl/rHxKVwKALUQev44QA",
-            description: "Calle Alejandro del Carpio # 258 entre Suipacha y Méndez (Zona Las Panosas)",
+            address: "https://maps.app.goo.gl/SENXLifigjXYbzLs8",
+            description: "Calle Alejandro del Carpio # 258 entre Suipacha y Méndez <b>(Zona Las Panosas)</b>",
             phone: "72030105"
           }
         ],
         'Sucre': [
           {
-            address: "https://maps.app.goo.gl/bcK8XhSmjCk9daXt7",
-            description: "Calle Regimiento Campos # 174 Esquina Ricardo Andrade (Frente a la Facultad Técnica)",
+            address: "https://maps.app.goo.gl/WLtqbiQt3ETXsHwG9",
+            description: "Calle Regimiento Campos # 174 Esquina Ricardo Andrade <b>(Frente a la Facultad Técnica)</b>",
             phone: "72030104"
           }
         ],
         'Oruro': [
           {
-            address: "https://maps.app.goo.gl/5ARt9qRxZoRzadc89",
-            description: "Calle Potosí # 5507 Esquina Montecinos (Diagonal al Col. Juan Misael Saracho)",
+            address: "https://maps.app.goo.gl/CZPpa5dKrd7tf8QF7",
+            description: "Calle Potosí # 5507 Esquina Montecinos <b>(Diagonal al Col. Juan Misael Saracho)</b>",
             phone: "72030106"
           }
         ],
         'Potosí': [
           {
-            address: "https://maps.app.goo.gl/mzG5tcuqNpD9NcLDA",
-            description: "Avenida Prado San Clemente # 29 entre las calles Camargo y 13 de Mayo",
+            address: "https://maps.app.goo.gl/cnXZSHvwshURQ4Uq7",
+            description: "Avenida Prado San Clemente # 29 <b>(Entre las calles Camargo y 13 de Mayo)</b>",
             phone: "68868684"
           }
         ]
       };
       // await this.sendBotMessage(`Nuestra ubicación y contacto 👇🏻`);
 
-      await this.sendBotMessage(`Tiendas disponibles en la ciudad de <b>${this.nameCity}</b>`);
+      await this.sendBotMessage(`Tiendas en <b>${this.nameCity}</b>`);
 
 
       for (const contact of addresses[city]) {
         await this.sendBotMessage(`
           <div class='address-container'>
             <span class='address-icon'>📌</span>${contact.description}, 
-            <span class='phone-icon'>📲</span>
-            <a href='https://api.whatsapp.com/send/?phone=591${contact.phone}&text&type=phone_number&app_absent=0' target='_blank'>${contact.phone}</a>
-            <br>
             ${this.generateMapsButton(contact.address)}
             <br>
             ${this.generateWhatsAppButton(contact.phone)}
-            <br>
-            <span class='search-icon'>🧐</span>
-            Requieres un producto
-            <br>
-            ${this.generateSearchButton()}
           </div>
         `);
       }
@@ -705,7 +697,7 @@ export default {
       return `
         <a href='${whatsappBaseUrl}${phoneNumber}&text&type=phone_number&app_absent=0' target='_blank' class='button-full-width whatsapp-button'>
           <img src='https://cdn.glitch.global/fb88d943-304b-4312-be00-868b389c37cf/whatsapp_logo_icon_229310.png?v=1717776398635' alt='WhatsApp' class='whatsapp-icon' />
-          <span>Iniciar conversación</span>
+          <span>WhatsApp <b>(Sólo texto)</b></span>
         </a>
       `;
     },
@@ -772,9 +764,8 @@ export default {
       if (advisor) {
         await this.sendBotMessage(`
           <div class='address-container'>
-            Nuestro especialista te atenderá con gusto<br>  
-            <span class='phone-icon'>📲</span> ${advisor[0]}: ${advisor[1]}
-            </div>
+            ¿Desea una atención personalizada?<br>  
+          </div>
         `);
         await this.sendBotMessageSimpleOption(this.generateWhatsAppButton(advisor[1]));
       }
@@ -1104,11 +1095,12 @@ export default {
 
 .chatbot-footer input {
   flex: 1;
-  padding: 5px;
+  padding: 15px;
   border: 1px solid #ccc;
-  border-radius: 20px;
+  border-radius: 32px;
 
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-size: 21px;
 }
 
 .address-container {
