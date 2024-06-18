@@ -41,12 +41,19 @@
           <div v-else class="message-bubble" v-html="message.text" @click="message.sender === 'option' && !message.disabled ? sendMessage(message.text) : null"></div>
         </div>
       </div>
+      <div class="menu-toggle" @click="toggleMenu">{{ menuButtonText }}</div>
+      <div v-if="showMenu" class="menu-options">
+        <button v-for="(option, idx) in listMenu" :key="idx" class="menu-option-button" @click="handleMenuOption(option)">
+          {{ option }}
+        </button>
+      </div>
       <div class="chatbot-footer">
         <input ref="userInput" v-model="userMessage" @input="handleInput" @keyup.enter="checkEnter" :disabled="!isInputEnabled" :placeholder="inputPlaceholder" />
         <ul v-if="autocompleteResults.length > 0" class="autocomplete-results">
           <li v-for="(result, index) in autocompleteResults" :key="index" @click="selectAutocompleteResult(result)" v-html="result.nombreProducto"></li>
         </ul>
       </div>
+
       <div v-if="showTemporaryMessage" class="temporary-message">
         Debe seleccionar un producto
       </div>
@@ -123,23 +130,53 @@ export default {
         }
       },
       areaSelected: '',
+      showMenu: false,
+      menuButtonText: '⬆ SELECCIONAR UNA OPCIÓN',
+      hasTooltipBeenShown: false
     };
   },
   methods: {
-    toggleChat() {
-      if (this.showChat) {
-        // this.clearMessages();
-        this.clearAutocomplete();
-        this.disableInput();
-      }else {
-        this.userMessage = ''; 
+    async toggleMenu() {
+      if (this.showMenu) {
+        const menuElement = this.$el.querySelector('.menu-options');
+        menuElement.classList.remove('show');
+        await this.delay(3); // Espera 300ms antes de ocultar el menú
+        this.showMenu = false;
+      } else {
+        this.showMenu = true;
+        await this.delay(5); // Espera 10ms para permitir la transición
+        this.$nextTick(() => {
+          const menuElement = this.$el.querySelector('.menu-options');
+          menuElement.classList.add('show');
+        });
       }
-      this.showChat = !this.showChat;
-      this.showTooltip = !this.showChat;
+      this.menuButtonText = this.showMenu ? '⬇ SELECCIONAR UNA OPCIÓN' : '⬆ SELECCIONAR UNA OPCIÓN';
+    },
+    handleMenuOption(option) {
+      
+      // this.showMenu = false;
+      this.toggleMenu();
+      this.sendMessage(option);
+    },
+    async toggleChat() {
       if (this.showChat) {
+        const chatbotElement = this.$el.querySelector('.chatbot');
+        chatbotElement.classList.add('close');
+        await this.delay(300); // Espera 300ms antes de ocultar el chat
+        this.showChat = false;
+      } else {
+        this.showChat = true;
+        this.showTooltip = false;
+        this.hasTooltipBeenShown = true; // Actualiza la variable
+        this.$nextTick(() => {
+          const chatbotElement = this.$el.querySelector('.chatbot');
+          chatbotElement.classList.remove('close');
+        });
         this.startConversation();
       }
     },
+
+
     openChat() {
       if (!this.showChat) {
         this.showChat = true;
@@ -151,19 +188,21 @@ export default {
       this.showChat = true;
     },
     startVibrationLoop() {
-      this.showTooltip = true;
+      if (this.hasTooltipBeenShown) return; // Si el tooltip ya ha sido mostrado, no hacer nada
 
+      this.showTooltip = true;
       setInterval(() => {
         const button = this.$el.querySelector('.chatbot-button');
         button.classList.add('vibrate');
-        this.showTooltip == true ? true : false; // Mostrar el tooltip
+        this.showTooltip = true; // Mostrar el tooltip
         setTimeout(() => {
           button.classList.remove('vibrate');
         }, 200); // Duración de la vibración
       }, 15000); // Intervalo de 15 segundos
     },
+
     handleOutsideClick(event) {
-      if (!this.$el.contains(event.target) && this.showChat) {
+      if (!this.$el.contains(event.target) && this.showChat && this.showMenu) {
         // this.clearMessages();
         this.clearAutocomplete();
         this.disableInput();
@@ -191,7 +230,8 @@ export default {
           this.nameCity = this.getCityNameById(this.idCiudad);
           console.log(this.nameCity, this.idCiudad);
           // this.welcome();
-          this.menu();
+          // this.menu();
+          this.sendBotMessage(`¿En qué podemos ayudarte? 👀`);
         }
       }
       this.scrollToBottom();
@@ -226,7 +266,7 @@ export default {
     checkEnter(event) {
       // if (event.key === 'Enter' && this.isInputEnabled) {
       if (event.key === 'Enter') {
-        sendDataGeneral(this.userMessage, this.idCiudad);
+        this.sendDataGeneral(this.userMessage, this.idCiudad);
         this.sendMessage(this.userMessage);
         this.sendBotMessage(`Buscando producto... 👀`);
 
@@ -422,7 +462,7 @@ export default {
     async handleInput(event) {
       const query = event.target.value;
       if (query) {
-        const results = await getDataAutocomplete(query, this.idCiudad);
+        const results = await this.getDataAutocomplete(query, this.idCiudad);
         this.autocompleteResults = results;
       } else {
         this.autocompleteResults = [];
@@ -431,80 +471,80 @@ export default {
     // DESARROLLO 
     // ..............
     // método de busqueda de productos
-    // async getDataAutocomplete() {
-    //   return new Promise(resolve => {
-    //     setTimeout(() => {
-    //       resolve([
-    //         {
-    //           "idCategoria": "2",
-    //           "ordenLista": 1,
-    //           "nombreCategoria": "IMPRESORAS",
-    //           "idRubro": "7",
-    //           "nombreRubro": "INSUMOS IMPRESORAS",
-    //           "nombreProducto": "<b>TONER</b> para IMPRESORAS INSUMOS IMPRESORAS",
-    //           "idMarca": "37",
-    //           "query": "TONER",
-    //           "tipoBusqueda": 1
-    //         },
-    //         {
-    //           "idCategoria": "1",
-    //           "ordenLista": 1,
-    //           "nombreCategoria": "FOTOCOPIADORAS",
-    //           "idRubro": "2",
-    //           "nombreRubro": "REPUESTOS",
-    //           "nombreProducto": "<b>TONER</b> para FOTOCOPIADORAS REPUESTOS",
-    //           "idMarca": "7",
-    //           "query": "TONER",
-    //           "tipoBusqueda": 1
-    //         },
-    //         {
-    //           "idCategoria": "1",
-    //           "ordenLista": 1,
-    //           "nombreCategoria": "FOTOCOPIADORAS",
-    //           "idRubro": "46",
-    //           "nombreRubro": "CHIPS P/TONER",
-    //           "nombreProducto": "<b>TONER</b> para FOTOCOPIADORAS CHIPS P/TONER",
-    //           "idMarca": "105",
-    //           "query": "TONER",
-    //           "tipoBusqueda": 1
-    //         },
-    //         {
-    //           "idCategoria": "1",
-    //           "ordenLista": 1,
-    //           "nombreCategoria": "FOTOCOPIADORAS",
-    //           "idRubro": "1",
-    //           "nombreRubro": "INSUMOS",
-    //           "nombreProducto": "<b>TONER</b> para FOTOCOPIADORAS INSUMOS",
-    //           "idMarca": "17",
-    //           "query": "TONER",
-    //           "tipoBusqueda": 1
-    //         }
-    //       ]);
-    //     }, 500);
-    //   });
-    // },
+    async getDataAutocomplete() {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve([
+            {
+              "idCategoria": "2",
+              "ordenLista": 1,
+              "nombreCategoria": "IMPRESORAS",
+              "idRubro": "7",
+              "nombreRubro": "INSUMOS IMPRESORAS",
+              "nombreProducto": "<b>TONER</b> para IMPRESORAS INSUMOS IMPRESORAS",
+              "idMarca": "37",
+              "query": "TONER",
+              "tipoBusqueda": 1
+            },
+            {
+              "idCategoria": "1",
+              "ordenLista": 1,
+              "nombreCategoria": "FOTOCOPIADORAS",
+              "idRubro": "2",
+              "nombreRubro": "REPUESTOS",
+              "nombreProducto": "<b>TONER</b> para FOTOCOPIADORAS REPUESTOS",
+              "idMarca": "7",
+              "query": "TONER",
+              "tipoBusqueda": 1
+            },
+            {
+              "idCategoria": "1",
+              "ordenLista": 1,
+              "nombreCategoria": "FOTOCOPIADORAS",
+              "idRubro": "46",
+              "nombreRubro": "CHIPS P/TONER",
+              "nombreProducto": "<b>TONER</b> para FOTOCOPIADORAS CHIPS P/TONER",
+              "idMarca": "105",
+              "query": "TONER",
+              "tipoBusqueda": 1
+            },
+            {
+              "idCategoria": "1",
+              "ordenLista": 1,
+              "nombreCategoria": "FOTOCOPIADORAS",
+              "idRubro": "1",
+              "nombreRubro": "INSUMOS",
+              "nombreProducto": "<b>TONER</b> para FOTOCOPIADORAS INSUMOS",
+              "idMarca": "17",
+              "query": "TONER",
+              "tipoBusqueda": 1
+            }
+          ]);
+        }, 500);
+      });
+    },
 
-    // // método de enviar producto seleccionado
-    // sendDataAutocomplete(param) {
-    //   // Mostrar el objeto en la consola
-    //   console.log('Objeto seleccionado:', param);
+    // método de enviar producto seleccionado
+    sendDataAutocomplete(param) {
+      // Mostrar el objeto en la consola
+      console.log('Objeto seleccionado:', param);
 
-    //   // Esperar 5 segundos y actualizar la página
-    //   setTimeout(() => {
-    //     console.log('recarga');
-    //     // window.location.reload();
-    //   }, 5000);
-    // },
+      // Esperar 5 segundos y actualizar la página
+      setTimeout(() => {
+        console.log('recarga');
+        // window.location.reload();
+      }, 5000);
+    },
 
-    // // método que busca items cuando el usuario preciona [enter]
-    // sendDataGeneral(userInput, cityId) {
-    //   console.log(`Texto del usuario: ${userInput}, Ciudad: ${cityId}`);
-    // },
+    // método que busca items cuando el usuario preciona [enter]
+    sendDataGeneral(userInput, cityId) {
+      console.log(`Texto del usuario: ${userInput}, Ciudad: ${cityId}`);
+    },
 
     // ..............
     // DESARROLLO
     selectAutocompleteResult(result) {
-      sendDataAutocomplete(result, this.idCiudad);
+      this.sendDataAutocomplete(result, this.idCiudad);
       this.autocompleteResults = [];
     },
 
@@ -547,7 +587,7 @@ export default {
           </div>
         </div>`
       );
-      this.menuPreEnd();
+      // this.menuPreEnd();
     },
     menuPreEnd() {
       this.sendBotMessageOptions("¿Te puedo ayudar con algo más? 😃");
@@ -690,7 +730,7 @@ export default {
       await this.sendBotMessage("También estamos en otras ciudades");
       await this.sendBotOptionsGrouped(this.filterCities(this.nameCity));
 
-      this.menuPreEnd();
+      // this.menuPreEnd();
     },
     generateWhatsAppButton(phoneNumber) {
       const whatsappBaseUrl = "https://api.whatsapp.com/send/?phone=591";
@@ -764,18 +804,19 @@ export default {
       if (advisor) {
         await this.sendBotMessage(`
           <div class='address-container'>
-            ¿Desea una atención personalizada?<br>  
+            ¿Desea una atención personalizada?                                                                           <br>  
+            ${this.generateWhatsAppButton(advisor[1])}
           </div>
         `);
-        await this.sendBotMessageSimpleOption(this.generateWhatsAppButton(advisor[1]));
       }
+
             
-      this.menuPreEnd();
+      // this.menuPreEnd();
     },
 
     catalog() {
       this.buildArea();
-      this.menuPreEnd();
+      // this.menuPreEnd();
     },
     customerSupport(area) {
       const advisors = {
@@ -791,7 +832,7 @@ export default {
       } else if (area === "🙋🏻‍♂️ Atención general") {
         this.sendBotOptions(this.listCitySupport);
       }
-      this.menuPreEnd();
+      // this.menuPreEnd();
     },
     customerSupportByCity(city) {
       const phones = {
@@ -806,7 +847,8 @@ export default {
       };
       this.sendBotMessage(`Nuestro asesor en la tienda de ${city} te atenderá con gusto. 😊`);
       this.sendBotMessage(phones[city]);
-      this.menuPreEnd();
+      // this.menuPreEnd();
+
     },
     buildArea() {
       this.sendBotMessage("Lo siento, esta área está en construcción 🛠️");
@@ -855,7 +897,7 @@ export default {
 
 @keyframes expand {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+    box-shadow: 0 0 0 0 rgba(37, 49, 211, 0.7);
   }
   50% {
     box-shadow: 0 0 15px 15px rgba(37, 211, 102, 0);
@@ -866,14 +908,14 @@ export default {
   position: relative;
   width: 60px;
   height: 60px;
-  background-color: #25D366;
+  background-color: #0000ff;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  background-image: url('https://cdn.glitch.global/fb88d943-304b-4312-be00-868b389c37cf/bot-head.png?v=1717688111538');
+  background-image: url('https://cdn.glitch.global/fb88d943-304b-4312-be00-868b389c37cf/mensaje.png?v=1718742560046');
   background-size: 69%;
   background-repeat: no-repeat;
   background-position: center;
@@ -945,10 +987,10 @@ export default {
 
 .chatbot {
   position: fixed;
-  bottom: 80px;
-  right: 20px;
-  width: 345px;
-  height: 500px;
+  bottom: 15px;
+  right: 15px;
+  width: 400px;
+  height: 700px;
   background: #f0f0f0;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   display: flex;
@@ -956,6 +998,16 @@ export default {
   justify-content: space-between;
   z-index: 9999; 
   border-radius: 10px;
+
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  transform: translateY(0);
+  opacity: 1;
+}
+
+
+.chatbot.close {
+  transform: translateY(100%);
+  opacity: 0;
 }
 
 /* saludo del bot */
@@ -976,7 +1028,7 @@ export default {
 .chatbot-header h3 {
   margin: 0;
   font-size: 27px;
-  padding: 10px 0 5px 10px;
+  padding: 5px 0 0px 10px;
   display: flex;
   align-items: center;
   justify-content: flex-start; /* Alinea el título al inicio (izquierda) */
@@ -986,7 +1038,7 @@ export default {
 .chatbot-header p {
   margin: 0;
   padding-left: 10px;
-  padding-bottom: 10px;
+  padding-bottom: 5px;
   display: flex;
   align-items: center;
   justify-content: flex-start; /* Alinea el texto de la ciudad al inicio (izquierda) */
@@ -994,9 +1046,28 @@ export default {
   font-weight: bold;
 }
 
+/* boton para cerrar el chat */
 .chatbot-header .close-btn {
-  margin-left: auto; 
+  background-color: rgb(216, 43, 43); /* Fondo rojo */
+  color: white; /* Texto blanco */
+  border: none; /* Sin borde */
+  font-size: 20px; /* Tamaño del texto */
+  cursor: pointer; /* Cambia el cursor al pasar sobre el botón */
+  border-radius: 50%; /* Hace que el botón sea redondo */
+  width: 30px; /* Ancho del botón */
+  height: 30px; /* Altura del botón */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute; /* Asegúrate de que se posicione correctamente */
+  top: 10px; /* Ajusta la posición según sea necesario */
+  right: 10px; /* Ajusta la posición según sea necesario */
 }
+
+.chatbot-header .close-btn:hover {
+  background-color: rgb(240, 140, 140); /* Fondo rojo oscuro al pasar el mouse */
+}
+
 
 
 
@@ -1043,6 +1114,7 @@ export default {
   opacity: 0; /* Oculto inicialmente */
   transform: translateY(20px); /* Desplazado hacia abajo inicialmente */
   animation: slideUp 0.5s forwards; /* Animación que lo hace visible y lo desplaza hacia arriba */
+  font-size: 19px;
 }
 
 @keyframes slideUp {
@@ -1286,6 +1358,9 @@ export default {
   text-decoration: none;
   margin: 1px 0px 1px 9px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  min-width: 245px; 
+  box-sizing: border-box;
 }
 
 .whatsapp-button:hover {
@@ -1304,6 +1379,7 @@ export default {
 
 .whatsapp-button span {
   color: white; /* Asegura que el texto dentro del botón esté en color blanco */
+  white-space: nowrap;
 }
 
 .whatsapp-button a {
@@ -1558,5 +1634,78 @@ export default {
   text-decoration: none;
 }
 
+
+/* tamaño de los botones */
+
+/* .option .message-bubble, .two-option-content, .option-grouped-button, .option-principal-menu-button {
+  font-size: 18px;
+}
+
+.option-grouped-button-yellow{
+  font-size: 13px;
+}
+
+.whatsapp-button span, .maps-button span, .search-button span {
+  font-size: 18px; 
+}
+.chatbot-header h3 {
+  font-size: 30px; 
+}
+
+.chatbot-header p {
+  font-size: 24px; 
+} */
+
+/* nuevo menú parte inferior */
+
+.menu-toggle {
+  width: 100%; /* Ajusta el ancho para que considere el padding y margen del contenedor */
+  background-color: #25D366;
+  color: white;
+  padding: 10px 0 10px 0;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 15px 15px 0 0;
+  margin-bottom: 10px 0 10px 0;
+}
+
+.menu-options {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 5px;
+  transition: max-height 0.3s ease-in-out, transform 0.3s ease-in-out;
+  max-height: 0;
+  overflow: hidden;
+  /* transform: translateY(-100%); */
+}
+
+.menu-options.show {
+  max-height: 500px; /* Ajusta según el contenido */
+  transform: translateY(0);
+}
+
+
+.menu-option-button {
+  background-color: #f0f0f0;
+  border: none;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  
+}
+
+.menu-option-button:hover {
+  background-color: #ddd;
+}
+
+
+
+/* Añade un scroll a toda la página */
+body {
+  height: 200vh;
+}
 
 </style>
