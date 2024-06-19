@@ -1678,6 +1678,8 @@ export default {
   max-height: 0;
   overflow: hidden;
   /* transform: translateY(-100%); */
+  
+  background-color: #ffffff;
 }
 
 .menu-options.show {
@@ -1687,18 +1689,20 @@ export default {
 
 
 .menu-option-button {
-  background-color: #f0f0f0;
+  background-color: #f0f0f0f0;
   border: none;
   padding: 10px;
   text-align: center;
   cursor: pointer;
-  margin-bottom: 5px;
+  margin: 5px 8px;
   border-radius: 5px;
-  
+  color: #095a27;
+  font-weight: bold;
 }
 
 .menu-option-button:hover {
-  background-color: #ddd;
+  background-color: #bbf7d2;
+  color: #095a27;
 }
 
 
