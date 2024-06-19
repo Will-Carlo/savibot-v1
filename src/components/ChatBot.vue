@@ -990,7 +990,8 @@ export default {
   bottom: 15px;
   right: 15px;
   width: 400px;
-  height: 700px;
+  /* height: 700px; */
+  height: 78%;
   background: #f0f0f0;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   display: flex;
@@ -1284,6 +1285,7 @@ export default {
 
 .chatbot-container {
   position: relative;
+  height: 100vh;
 }
 
 .chatbot-button-wrapper {
