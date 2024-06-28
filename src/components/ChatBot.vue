@@ -2,8 +2,9 @@
   <div class="chatbot-container">
     <div class="chatbot-button-wrapper">
       <div class="chatbot-button" @click="toggleChat">
-        <div class="chatbot-tooltip" :class="{ show: showTooltip && !showChat }">
-          ¿Necesitas ayuda? <br> <strong>Conversa con nosotros</strong>
+        <div class="chatbot-tooltip" :class="{ show: showTooltip }">
+          <!-- ¿Necesitas ayuda? <br> <strong>Conversa con nosotros</strong> -->
+          <img src="https://cdn.glitch.global/fb88d943-304b-4312-be00-868b389c37cf/flecha%20AZUL.png?v=1719610915886" alt="Flecha" id="flechaAnimada">
         </div>
       </div>
     </div>
@@ -164,16 +165,20 @@ export default {
         chatbotElement.classList.add('close');
         await this.delay(300); // Espera 300ms antes de ocultar el chat
         this.showChat = false;
+        console.log("cerrando el chatbot");
       } else {
         this.showChat = true;
-        this.showTooltip = false;
         this.hasTooltipBeenShown = true; // Actualiza la variable
         this.$nextTick(() => {
           const chatbotElement = this.$el.querySelector('.chatbot');
           chatbotElement.classList.remove('close');
         });
         this.startConversation();
+        console.log("abriendo el chatbot");
       }
+      
+      this.showTooltip = false;
+      this.toggleMenu();
     },
 
 
@@ -190,11 +195,11 @@ export default {
     startVibrationLoop() {
       if (this.hasTooltipBeenShown) return; // Si el tooltip ya ha sido mostrado, no hacer nada
 
-      this.showTooltip = true;
+      // this.showTooltip = true;
       setInterval(() => {
         const button = this.$el.querySelector('.chatbot-button');
         button.classList.add('vibrate');
-        this.showTooltip = true; // Mostrar el tooltip
+        // this.showTooltip = true; // Mostrar el tooltip
         setTimeout(() => {
           button.classList.remove('vibrate');
         }, 200); // Duración de la vibración
@@ -207,7 +212,7 @@ export default {
         this.clearAutocomplete();
         this.disableInput();
         this.showChat = false;
-        this.showTooltip = true;
+        // this.showTooltip = true;
       }
     },
     clearMessages() {
@@ -541,7 +546,7 @@ export default {
       console.log(`Texto del usuario: ${userInput}, Ciudad: ${cityId}`);
     },
 
-    // ..............
+  // ..............
     // DESARROLLO
     selectAutocompleteResult(result) {
       this.sendDataAutocomplete(result, this.idCiudad);
@@ -1285,7 +1290,7 @@ export default {
 
 .chatbot-container {
   position: relative;
-  height: 100vh;
+  /* height: 100vh; */
 }
 
 .chatbot-button-wrapper {
@@ -1298,9 +1303,9 @@ export default {
 .chatbot-tooltip {
   position: absolute;
   top: 48%;
-  right: calc(100% + 10px); /* Ajustar la distancia entre el tooltip y el botón */
+  right: calc(100% + 1px); /* Ajustar la distancia entre el tooltip y el botón */
   transform: translateY(-50%);
-  background-color: #002f5d;
+  /* background-color: #002f5d; */
   color: white;
   padding: 4px 17px;
   border-radius: 12px 12px 0px 12px;
@@ -1313,7 +1318,34 @@ export default {
 .chatbot-tooltip.show {
   opacity: 1;
   transform: translateY(-50%); /* Mantener la posición correcta */
+  
 }
+
+
+
+/* animación de la flecha */
+
+#flechaAnimada {
+  width: 200px;
+  height: 75px;
+  animation: bounce 3s infinite;
+  
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-30px);
+  }
+  60% {
+    transform: translateY(-15px);
+  }
+}
+
+
+
 
 /* Estilos para la lista de resultados de autocompletar */
 .autocomplete-results {
@@ -1709,9 +1741,66 @@ export default {
 
 
 
-/* Añade un scroll a toda la página */
-body {
-  height: 200vh;
+/* Estilos responsivos para el chatbot */
+@media (max-width: 768px) {
+  .chatbot {
+    width: 90%;
+    height: 80%; /* Ajusta la altura según sea necesario */
+    bottom: 0;
+    right: 0;
+    border-radius: 0;
+  }
+
+  .chatbot-header {
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  .chatbot-body {
+    padding: 10px;
+  }
+
+  .chatbot-footer input {
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  .menu-toggle, .menu-option-button {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .two-option-button, .option-grouped-button, .option-principal-menu-button, .option-grouped-button-yellow, .simple-option-container, .button-full-width, .whatsapp-button, .maps-button, .search-button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .whatsapp-button, .maps-button, .search-button {
+    width: 100%;
+  }
+
+  .message-bubble {
+    font-size: 14px;
+  }
+
+  .temporary-message {
+    bottom: 100px; /* Ajusta según sea necesario para que aparezca justo encima del input */
+    font-size: 12px;
+    width: 90%; /* Ajusta el ancho según sea necesario */
+  }
+
+  .autocomplete-results {
+    font-size: 12px;
+  }
 }
+
+
+
+/* Añade un scroll a toda la página */
+/* body {
+  height: 200vh;
+} */
+
+
 
 </style>
