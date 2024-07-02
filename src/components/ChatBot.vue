@@ -1,10 +1,10 @@
 <template>
   <div class="chatbot-container">
     <div class="chatbot-button-wrapper">
-      <div class="chatbot-button" @click="toggleChat">
+      <div class="chatbot-button" @click="handleChatbotButtonClick">
         <div class="chatbot-tooltip" :class="{ show: showTooltip }">
           <!-- ¿Necesitas ayuda? <br> <strong>Conversa con nosotros</strong> -->
-          <img src="https://cdn.glitch.global/fb88d943-304b-4312-be00-868b389c37cf/flecha%20AZUL.png?v=1719610915886" alt="Flecha" id="flechaAnimada">
+          <img v-if="showTooltip" src="https://cdn.glitch.global/fb88d943-304b-4312-be00-868b389c37cf/flecha%20AZUL.png?v=1719610915886" alt="Flecha" id="flechaAnimada">
         </div>
       </div>
     </div>
@@ -279,6 +279,12 @@ export default {
         // setTimeout(() => {
         //   this.showTemporaryMessage = false;
         // }, 2000);
+      }
+    },
+    handleChatbotButtonClick(event) {
+    // Verifica si el clic no fue en la flecha animada
+      if (event.target.id !== 'flechaAnimada') {
+        this.toggleChat();
       }
     },
     saveMessagesToSession() {
