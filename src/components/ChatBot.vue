@@ -1,3 +1,5 @@
+
+
 <template>
   <div class="chatbot-container">
     <div class="chatbot-button-wrapper">
@@ -43,7 +45,7 @@
         </div>
       </div>
       <div class="menu-toggle" @click="toggleMenu">{{ menuButtonText }}</div>
-      <div v-if="showMenu" class="menu-options">
+      <div v-if="showMenu" class="menu-options show">
         <button v-for="(option, idx) in listMenu" :key="idx" class="menu-option-button" @click="handleMenuOption(option)">
           {{ option }}
         </button>
@@ -70,6 +72,10 @@
 
 
 <script>
+import axios from 'axios';
+import moment from 'moment-timezone';
+
+
 export default {
   data() {
     return {
@@ -133,22 +139,40 @@ export default {
       areaSelected: '',
       showMenu: false,
       menuButtonText: '⬆ SELECCIONAR UNA OPCIÓN',
-      hasTooltipBeenShown: false
+      hasTooltipBeenShown: false,
+      // VARIABLES PARA EL ENVIO DE DATOS DE SESION
+      apiFechaInicioSesion: null,
+      apiFechaFinalSesion: null,
+      apiDuracionSesion: null,
+      apiUrlReferente: document.referrer,
+      apiBrowserUserAgent: navigator.userAgent,
+      apiTipoDeDispositivo: this.detectDeviceType(),
+      apiIpAddress: null,  // Asumiremos que obtendremos la IP desde la API
+      apiPais: null,       // Asumiremos que obtendremos el país desde la API
+      apiCiudad: this.idCiudad,
+      apiBuscarTiendas: 0,
+      apiHorarios: 0,
+      apiAreaComp: 0,
+      apiArea3d: 0,
+      apiAreaCort: 0
     };
   },
   methods: {
     async toggleMenu() {
+      const menuElement = this.$el.querySelector('.menu-options');
       if (this.showMenu) {
-        const menuElement = this.$el.querySelector('.menu-options');
-        menuElement.classList.remove('show');
-        await this.delay(3); // Espera 300ms antes de ocultar el menú
+        if (menuElement) {  // Verifica que el elemento exista
+          menuElement.classList.remove('show');
+        }
+        await this.delay(300); // Espera 300ms antes de ocultar el menú
         this.showMenu = false;
       } else {
         this.showMenu = true;
-        await this.delay(5); // Espera 10ms para permitir la transición
+        await this.delay(10); // Espera 10ms para permitir la transición
         this.$nextTick(() => {
-          const menuElement = this.$el.querySelector('.menu-options');
-          menuElement.classList.add('show');
+          if (menuElement) {  // Verifica que el elemento exista
+            menuElement.classList.add('show');
+          }
         });
       }
       this.menuButtonText = this.showMenu ? '⬇ SELECCIONAR UNA OPCIÓN' : '⬆ SELECCIONAR UNA OPCIÓN';
@@ -158,21 +182,51 @@ export default {
       // this.showMenu = false;
       this.toggleMenu();
       this.sendMessage(option);
+
+      switch (option) {
+        case 'VER TIENDAS EN TU CIUDAD 🏬':
+          this.apiBuscarTiendas++;
+          break;
+        case 'HORARIOS DE ATENCIÓN 🕒':
+          this.apiHorarios++;
+          break;
+        case 'ÁREA DE COMPUTACIÓN 💻':
+          this.apiAreaComp++;
+          break;
+        case 'ÁREA 3D 🚀':
+          this.apiArea3d++;
+          break;
+        case 'ÁREA CORTADORAS LÁSER 🔦':
+          this.apiAreaCort++;
+          break;
+      }
+
     },
     async toggleChat() {
+      const chatbotElement = this.$el.querySelector('.chatbot');
       if (this.showChat) {
-        const chatbotElement = this.$el.querySelector('.chatbot');
-        chatbotElement.classList.add('close');
+        if (chatbotElement) {  // Verifica que el elemento exista
+          chatbotElement.classList.add('close');
+        }
         await this.delay(300); // Espera 300ms antes de ocultar el chat
         this.showChat = false;
+        // this.apiFechaFinalSesion = moment().tz("America/La_Paz").toISOString();
+        this.apiFechaFinalSesion = moment().tz("America/La_Paz").subtract(4, 'hours').toISOString();
+        console.log("apiFechaFinalSesion", this.apiFechaFinalSesion);
+        this.apiDuracionSesion = Math.floor((moment(this.apiFechaFinalSesion).tz("America/La_Paz").toDate() - moment(this.apiFechaInicioSesion).tz("America/La_Paz").toDate()) / 1000);
+        this.sendSessionData();
         console.log("cerrando el chatbot");
       } else {
         this.showChat = true;
         this.hasTooltipBeenShown = true; // Actualiza la variable
         this.$nextTick(() => {
-          const chatbotElement = this.$el.querySelector('.chatbot');
-          chatbotElement.classList.remove('close');
+          if (chatbotElement) {  // Verifica que el elemento exista
+            chatbotElement.classList.remove('close');
+          }
         });
+        // this.apiFechaInicioSesion = moment().tz("America/La_Paz").toISOString();
+        this.apiFechaInicioSesion = moment().tz("America/La_Paz").subtract(4, 'hours').toISOString();
+        console.log("apiFechaInicioSesion", this.apiFechaInicioSesion);
         this.startConversation();
         console.log("abriendo el chatbot");
       }
@@ -285,8 +339,13 @@ export default {
     // Verifica si el clic no fue en la flecha animada
       if (event.target.id !== 'flechaAnimada') {
         this.toggleChat();
+        if (!this.apiFechaInicioSesion) {
+          this.apiFechaInicioSesion = new Date().toISOString();
+        }
       }
     },
+
+
     saveMessagesToSession() {
       const messagesJSON = JSON.stringify(this.messages);
       // console.log(messagesJSON);
@@ -877,7 +936,77 @@ export default {
       sessionStorage.setItem("coddepto", this.idCiudad);
       this.menu();
       this.scrollToBottom();
+    },
+
+   // Método para detectar el tipo de dispositivo
+   detectDeviceType() {
+      const ua = navigator.userAgent;
+      if (/mobile/i.test(ua)) return 'mobile';
+      if (/tablet/i.test(ua)) return 'tablet';
+      return 'desktop';
+    },
+
+     // Método para enviar datos de la sesión a la API
+    async sendSessionData() {
+      // Obtén la IP y el país del usuario si es necesario
+      if (!this.apiIpAddress || !this.apiPais) {
+        const res = await axios.get('https://api.ipify.org?format=json');
+        this.apiIpAddress = res.data.ip;
+        // Aquí podrías usar otro servicio para obtener el país basado en la IP
+      }
+
+      this.apiCiudad = this.idCiudad;
+
+      const sessionData = {
+        apiFechaInicioSesion: this.apiFechaInicioSesion,
+        apiFechaFinalSesion: this.apiFechaFinalSesion,
+        apiDuracionSesion: this.apiDuracionSesion,
+        apiUrlReferente: this.apiUrlReferente,
+        apiBrowserUserAgent: this.apiBrowserUserAgent,
+        apiTipoDeDispositivo: this.apiTipoDeDispositivo,
+        apiIpAddress: this.apiIpAddress,
+        apiPais: this.apiPais,
+        apiCiudad: this.apiCiudad,
+        apiBuscarTiendas: this.apiBuscarTiendas,
+        apiHorarios: this.apiHorarios,
+        apiAreaComp: this.apiAreaComp,
+        apiArea3d: this.apiArea3d,
+        apiAreaCort: this.apiAreaCort,
+      };
+
+      // console.log('Enviando datos de sesión a la API:', sessionData);
+
+      // Enviar los datos a la API
+      try {
+        const response = await axios.post('https://www.savin.com.bo/savinphp/'+ 'chatbot-registrar-sesion/', sessionData, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+        }); 
+        console.log('Respuesta de la API:', response.data);
+      } catch (error) {
+        console.error('Error al enviar los datos de sesión a la API:', error);
+      }
+    },
+  // Método para detectar el cierre de la ventana o navegación fuera de la página
+    handleBeforeUnload() {
+      if (this.showChat) {
+        this.apiFechaFinalSesion = new Date().toISOString();
+        this.apiDuracionSesion = Math.floor((new Date(this.apiFechaFinalSesion) - new Date(this.apiFechaInicioSesion)) / 1000);
+        this.sendSessionData();
+      }
+    },
+    async getUserCountry() {
+      try {
+        const response = await axios.get('https://natural-happy-chord.glitch.me/geoip');
+        this.apiPais = response.data.country;
+        console.log('País del usuario:', this.apiPais);
+      } catch (error) {
+        console.error('Error al obtener el país del usuario:', error);
+      }
     }
+
   },
   mounted() {
     document.addEventListener('click', this.handleOutsideClick);
@@ -888,9 +1017,16 @@ export default {
       }
     });
     this.startVibrationLoop();
+    
+    // Detectar el cierre de la ventana o navegación fuera de la página
+    window.addEventListener('beforeunload', this.handleBeforeUnload);
+
+    // Llamar al método para obtener el país del usuario
+    // this.getUserCountry();
   },
   beforeDestroy() {
     document.removeEventListener('click', this.handleOutsideClick);
+    window.removeEventListener('beforeunload', this.handleBeforeUnload);
   }
 };
 </script>
@@ -1303,7 +1439,7 @@ export default {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  z-index: 9999;
+  z-index: 1000;
 }
 
 .chatbot-tooltip {
