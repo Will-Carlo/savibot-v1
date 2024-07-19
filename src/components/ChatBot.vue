@@ -73,7 +73,7 @@
 
 <script>
 import axios from 'axios';
-import moment from 'moment-timezone';
+// import moment from 'moment-timezone';
 
 
 export default {
@@ -158,6 +158,27 @@ export default {
     };
   },
   methods: {
+    getCurrentDateTimeLaPaz() {
+      const options = { timeZone: 'America/La_Paz', hour12: false };
+      const now = new Date();
+      const dateTimeLaPaz = now.toLocaleString('en-US', options);
+      
+      // Convertir a objeto Date en el huso horario de La Paz
+      const dateLaPaz = new Date(dateTimeLaPaz);
+
+      // Obtener componentes de fecha y hora
+      const year = dateLaPaz.getFullYear();
+      const month = String(dateLaPaz.getMonth() + 1).padStart(2, '0'); // Meses comienzan en 0
+      const day = String(dateLaPaz.getDate()).padStart(2, '0');
+      const hours = String(dateLaPaz.getHours()).padStart(2, '0');
+      const minutes = String(dateLaPaz.getMinutes()).padStart(2, '0');
+      const seconds = String(dateLaPaz.getSeconds()).padStart(2, '0');
+
+      // Formatear en "YYYY-MM-DD HH:MM:SS"
+      const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+      return formattedDateTime;
+    },
     async toggleMenu() {
       const menuElement = this.$el.querySelector('.menu-options');
       if (this.showMenu) {
@@ -211,9 +232,11 @@ export default {
         await this.delay(300); // Espera 300ms antes de ocultar el chat
         this.showChat = false;
         // this.apiFechaFinalSesion = moment().tz("America/La_Paz").toISOString();
-        this.apiFechaFinalSesion = moment().tz("America/La_Paz").subtract(4, 'hours').toISOString();
+        // this.apiFechaFinalSesion = moment().tz("America/La_Paz").subtract(4, 'hours').toISOString();
+        this.apiFechaFinalSesion = this.getCurrentDateTimeLaPaz();
         console.log("apiFechaFinalSesion", this.apiFechaFinalSesion);
-        this.apiDuracionSesion = Math.floor((moment(this.apiFechaFinalSesion).tz("America/La_Paz").toDate() - moment(this.apiFechaInicioSesion).tz("America/La_Paz").toDate()) / 1000);
+        // this.apiDuracionSesion = Math.floor((moment(this.apiFechaFinalSesion).tz("America/La_Paz").toDate() - moment(this.apiFechaInicioSesion).tz("America/La_Paz").toDate()) / 1000);
+        this.apiDuracionSesion = Math.floor((new Date(this.apiFechaFinalSesion) - new Date(this.apiFechaInicioSesion)) / 1000);
         this.sendSessionData();
         console.log("cerrando el chatbot");
       } else {
@@ -225,7 +248,8 @@ export default {
           }
         });
         // this.apiFechaInicioSesion = moment().tz("America/La_Paz").toISOString();
-        this.apiFechaInicioSesion = moment().tz("America/La_Paz").subtract(4, 'hours').toISOString();
+        // this.apiFechaInicioSesion = moment().tz("America/La_Paz").subtract(4, 'hours').toISOString();
+        this.apiFechaInicioSesion = this.getCurrentDateTimeLaPaz();
         console.log("apiFechaInicioSesion", this.apiFechaInicioSesion);
         this.startConversation();
         console.log("abriendo el chatbot");
@@ -962,7 +986,8 @@ export default {
         apiFechaFinalSesion: this.apiFechaFinalSesion,
         apiDuracionSesion: this.apiDuracionSesion,
         apiUrlReferente: this.apiUrlReferente,
-        apiBrowserUserAgent: this.apiBrowserUserAgent,
+        // apiBrowserUserAgent: this.apiBrowserUserAgent,
+        apiBrowserUserAgent: escapeSlashes(this.apiBrowserUserAgent),
         apiTipoDeDispositivo: this.apiTipoDeDispositivo,
         apiIpAddress: this.apiIpAddress,
         apiPais: this.apiPais,
@@ -978,7 +1003,8 @@ export default {
 
       // Enviar los datos a la API
       try {
-        const response = await axios.post('https://www.savin.com.bo/savinphp/'+ 'chatbot-registrar-sesion/', sessionData, {
+        // const response = await axios.post('https://www.savin.com.bo/savinphp/'+ 'chatbot-registrar-sesion/', sessionData, {
+        const response = await axios.post('http://localhost:8082/'+ 'chatbot-registrar-sesion/', sessionData, {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
@@ -1029,6 +1055,10 @@ export default {
     window.removeEventListener('beforeunload', this.handleBeforeUnload);
   }
 };
+
+function escapeSlashes(str) {
+      return str.replace(/\//g, '-'); // Reemplaza '/' con '-'
+}
 </script>
 
 
