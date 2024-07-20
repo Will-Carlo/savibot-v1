@@ -982,8 +982,10 @@ export default {
       this.apiCiudad = this.idCiudad;
 
       const sessionData = {
-        apiFechaInicioSesion: this.apiFechaInicioSesion,
-        apiFechaFinalSesion: this.apiFechaFinalSesion,
+        // apiFechaInicioSesion: this.apiFechaInicioSesion,
+        apiFechaInicioSesion: new Date(this.apiFechaInicioSesion).toISOString(), // Asegurar formato ISO 8601
+        // apiFechaFinalSesion: this.apiFechaFinalSesion,
+        apiFechaFinalSesion: new Date(this.apiFechaFinalSesion).toISOString(), // Asegurar formato ISO 8601
         apiDuracionSesion: this.apiDuracionSesion,
         apiUrlReferente: this.apiUrlReferente,
         // apiBrowserUserAgent: this.apiBrowserUserAgent,
