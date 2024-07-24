@@ -878,13 +878,13 @@ export default {
       
       const linksWhatsApp = {
         'ÁREA DE COMPUTACIÓN 💻': [
-          "Iván", "74040348", "computación", "https://www.savin.com.bo/catalogo/catalogo_junio_computacion.pdf"
+          "Iván", "74040348", "computación", "https://www.savin.com.bo/catalogo/catalogo_computacion.pdf"
         ],
         'ÁREA 3D 🚀': [
-          "Rodri", "68068883", "3d", "https://www.savin.com.bo/catalogo/catalogo_junio_impresora3d.pdf"
+          "Rodri", "68068883", "3d", "https://www.savin.com.bo/catalogo/catalogo_impresoras3d.pdf"
         ],
         'ÁREA CORTADORAS LÁSER 🔦': [
-          "Rodri", "68068883", "cortadores láser", "https://www.savin.com.bo/catalogo/catalogo_junio_cortadora_grabadora.pdf"
+          "Rodri", "68068883", "cortadores láser", "https://www.savin.com.bo/catalogo/catalogo_cortadoras_grabadora.pdf"
           ]
       };
           
