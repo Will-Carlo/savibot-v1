@@ -44,7 +44,9 @@
           <div v-else class="message-bubble" v-html="message.text" @click="message.sender === 'option' && !message.disabled ? sendMessage(message.text) : null"></div>
         </div>
       </div>
-      <div class="menu-toggle" @click="toggleMenu">{{ menuButtonText }}</div>
+      <!-- <div class="menu-toggle" @click="toggleMenu">{{ menuButtonText }}</div> -->
+      <div class="menu-toggle" @click="toggleMenu" v-html="menuButtonText"></div>
+
       <div v-if="showMenu" class="menu-options show">
         <button v-for="(option, idx) in listMenu" :key="idx" class="menu-option-button" @click="handleMenuOption(option)">
           {{ option }}
@@ -196,7 +198,10 @@ export default {
           }
         });
       }
-      this.menuButtonText = this.showMenu ? '⬇ SELECCIONAR UNA OPCIÓN' : '⬆ SELECCIONAR UNA OPCIÓN';
+      this.menuButtonText = this.showMenu
+      ? '<img src="https://cdn.glitch.global/fb88d943-304b-4312-be00-868b389c37cf/Red_Arrow_Down.svg.png?v=1723464120425" alt="Flecha abajo" style="width: 15px;"> SELECCIONAR UNA OPCIÓN'
+      : '<img src="https://cdn.glitch.global/fb88d943-304b-4312-be00-868b389c37cf/Red_Arrow_up.svg.png?v=1723464120971" alt="Flecha arriba" style="width: 15px;"> SELECCIONAR UNA OPCIÓN';
+      // this.menuButtonText = this.showMenu ? '⬇ SELECCIONAR UNA OPCIÓN' : '⬆ SELECCIONAR UNA OPCIÓN';
     },
     handleMenuOption(option) {
       
