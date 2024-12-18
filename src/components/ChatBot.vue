@@ -147,7 +147,7 @@ export default {
       apiFechaFinalSesion: null,
       apiDuracionSesion: null,
       apiUrlReferente: document.referrer,
-      apiBrowserUserAgent: navigator.userAgent,
+      apiBrowserUserAgent: optimizeUserAgent(navigator.userAgent),
       apiTipoDeDispositivo: this.detectDeviceType(),
       apiIpAddress: null,  // Asumiremos que obtendremos la IP desde la API
       apiPais: null,       // Asumiremos que obtendremos el país desde la API
@@ -994,7 +994,8 @@ export default {
         apiDuracionSesion: this.apiDuracionSesion,
         apiUrlReferente: this.apiUrlReferente,
         // apiBrowserUserAgent: this.apiBrowserUserAgent,
-        apiBrowserUserAgent: escapeSlashes(this.apiBrowserUserAgent),
+        // apiBrowserUserAgent: escapeSlashes(this.apiBrowserUserAgent),
+        apiBrowserUserAgent: this.apiBrowserUserAgent,
         apiTipoDeDispositivo: this.apiTipoDeDispositivo,
         apiIpAddress: this.apiIpAddress,
         apiPais: this.apiPais,
@@ -1063,9 +1064,30 @@ export default {
   }
 };
 
-function escapeSlashes(str) {
-      return str.replace(/\//g, '-'); // Reemplaza '/' con '-'
+// function escapeSlashes(str) {
+//       return str.replace(/\//g, '-'); // Reemplaza '/' con '-'
+// }
+
+function optimizeUserAgent(userAgent) {
+    const parser = /([a-zA-Z]+)\/([\d.]+)|\(([^)]+)\)/g; // Patrón para analizar el User-Agent
+    let browser = '', version = '', os = '', device = '';
+    
+    userAgent.replace(parser, (_, app, ver, details) => {
+        if (app && ver && !browser) { // Detectar navegador y versión
+            browser = app;
+            version = ver;
+        } else if (details && !os) { // Detectar sistema operativo y dispositivo
+            os = details.split(';')[0].trim(); // Usar la primera parte como SO
+            device = details.includes('Mobile') ? 'Mobile' : 'Desktop';
+        }
+    });
+
+    // Construir un resumen optimizado
+    const summary = `Browser: ${browser}, Version: ${version}, OS: ${os}, Device: ${device}`;
+    return summary;
 }
+
+// npm run serve
 </script>
 
 
@@ -1983,3 +2005,5 @@ function escapeSlashes(str) {
 
 
 </style>
+
+
